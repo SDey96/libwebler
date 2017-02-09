@@ -1,4 +1,9 @@
+#ifndef __WEB_HTTP__
+
+#define __WEB_HTTP__
+
 #include <string>
+
 namespace web {
 
 	struct http_response {
@@ -9,3 +14,5 @@ namespace web {
 
 	web::http_response http_get(std::string);
 }
+
+#endif
