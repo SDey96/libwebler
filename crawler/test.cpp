@@ -9,7 +9,6 @@ using namespace std;
 
 // FOR CHANNEL TEST
 // #define N 100
-
 // void thread_function(int i,web::Channel<int> *chan) {
 // 	for(int j=0; j<N; j++) {
 // 		chan->add(i);
@@ -31,7 +30,7 @@ int main () {
 	// CHANNEL TEST
 	// web::Channel<int> *chan = new web::Channel<int>;
 
-	// int total_threads = 100;
+	// int total_threads = 1000;
 
 	// thread *thread_array = new thread[total_threads];
 
@@ -42,7 +41,7 @@ int main () {
 	// int t = total_threads*N;
 	// int *arr = new int[total_threads];
 	// for(int j=0; j<t; j++) {
-	// 	arr[chan->retrive()]++;
+	// 	arr[chan->retrieve()]++;
 	// }
 	
 	// for(int j=0; j<total_threads; j++) {

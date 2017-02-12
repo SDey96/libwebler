@@ -4,7 +4,6 @@
 
 #include <queue>
 #include <mutex>
-#include <iostream>
 #include <semaphore.h>
 using namespace std;
 
@@ -17,6 +16,7 @@ namespace web {
 		mutex buffer_mutex;
 		sem_t buffer_sem;
 		queue<T> buffer;
+		bool chan_closed;
 
 	public:
 		Channel(){
@@ -26,7 +26,11 @@ namespace web {
 
 		void add(const T data) ;
 
-		T retrive();
+		T retrieve();
+
+		void close();
+
+		bool is_closed();
 
 	};
 
@@ -45,17 +49,28 @@ void web::Channel<T>::add(const T data) {
 }
 
 template <class T>
-T web::Channel<T>::retrive() {
+T web::Channel<T>::retrieve() {
 
 	sem_wait(&buffer_sem);
 	
-	T data = buffer.front();
 	buffer_mutex.lock();
+	T data = buffer.front();
 	buffer.pop();
 	buffer_mutex.unlock();
 
 	return data;
 
+}
+
+// TODO: synchronize close() and is_closed()
+template <class T>
+void web::Channel<T>::close() {
+	chan_closed = true;
+}
+
+template <class T>
+bool web::Channel<T>::is_closed() {
+	return chan_closed;
 }
 
 #endif
