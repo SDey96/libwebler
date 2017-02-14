@@ -19,22 +19,24 @@ namespace web {
 		bool chan_closed;
 
 	public:
-		Channel(){
-			sem_init(&buffer_sem, 0, 0);
-		}
+		Channel();
 		~Channel(){}
 
 		void add(const T data) ;
-
-		T retrieve();
+		T retrieve(bool*);
 
 		void close();
-
 		bool is_closed();
 
 	};
 
 
+}
+
+template <class T>
+web::Channel<T>::Channel() {
+	sem_init(&buffer_sem, 0, 0);
+	chan_closed = false;
 }
 
 template <class T>
@@ -49,28 +51,32 @@ void web::Channel<T>::add(const T data) {
 }
 
 template <class T>
-T web::Channel<T>::retrieve() {
+T web::Channel<T>::retrieve(bool *closed) {
+	if(chan_closed){
+		*closed = true;
+		T temp;
+		return temp;
+	} else {
+		sem_wait(&buffer_sem);
 
-	sem_wait(&buffer_sem);
-	
-	buffer_mutex.lock();
-	T data = buffer.front();
-	buffer.pop();
-	buffer_mutex.unlock();
-
-	return data;
-
+		if(chan_closed){
+			*closed = true;
+			T temp;
+			return temp;
+		} else {
+			*closed = false;
+			buffer_mutex.lock();
+			T data = buffer.front();
+			buffer.pop();
+			buffer_mutex.unlock();
+			return data;
+		}
+	}
 }
 
-// TODO: synchronize close() and is_closed()
 template <class T>
 void web::Channel<T>::close() {
 	chan_closed = true;
-}
-
-template <class T>
-bool web::Channel<T>::is_closed() {
-	return chan_closed;
 }
 
 #endif

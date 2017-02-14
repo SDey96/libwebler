@@ -1,6 +1,6 @@
-#include <string>
 #include <curl/curl.h>
 #include <web/http.hpp>
+#include <iostream>
 using namespace std;
 
 size_t curl_writeback(void *contents, size_t size, size_t nmemb, string *s) {
