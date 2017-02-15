@@ -41,7 +41,7 @@ void web::DepthHandler::start() {
 	bool closed;
 
 	// getting urls from channel
-	for(web::channel_data it; !closed ; it=chan_get->retrieve(&closed)) {
+	for(web::channel_data it=chan_get->retrieve(&closed); !closed ; it=chan_get->retrieve(&closed)) {
 		// link got from channel
 		channel_urls = it.links;
 

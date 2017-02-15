@@ -16,13 +16,13 @@ install: build_object $(BUILT_OBJECTS)
 	@echo "Process finished ..."
 	@echo ""
 	@echo "To link web library to your program, use the follow syntax"
-	@echo "use \"-lpthread -lcurl /usr/local/lib/web/web.a\" with your compilation"
+	@echo "use \"--std=c++11 /usr/local/lib/web/web.a -lpthread -lcurl\" with your compilation"
 	@echo ""
 	@echo "Example usage:"
 	@echo "#include <web/http.hpp>"
 	@echo "#include <web/channel.hpp>"
 	@echo "#include <web/crawler.hpp>"
-	@echo "g++ -o your_executable your_program.cpp /usr/local/lib/web/web.a -lpthread -lcurl"
+	@echo "g++ -o your_executable your_program.cpp --std=c++11 /usr/local/lib/web/web.a -lpthread -lcurl"
 	@echo ""
 
 build_object:place_headers $(BUILD_FILES)
