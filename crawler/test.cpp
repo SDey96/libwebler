@@ -32,8 +32,7 @@ using namespace std;
 // 	web::DepthHandler DH(
 // 		string("(.*?)"),
 // 		chanGet,
-// 		chanPut,
-// 		NULL
+// 		chanPut
 // 	);
 
 // 	DH.start();

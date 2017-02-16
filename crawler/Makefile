@@ -1,7 +1,8 @@
 .PHONY = install build_object place_headers test build_test uninstall reinstall clean_test clean create_dir
 
 CXX = g++
-FLAGS = --std=c++11 -lpthread -lcurl
+FLAGS = --std=c++14 -lpthread -lcurl
+TESTING_FLAGS = --std=c++14 -lpthread -lcurl
 BUILD_FILES = src/http.cpp src/crawler.cpp src/depth_manager.cpp
 BUILT_OBJECTS = http.o crawler.o depth_manager.o
 
@@ -41,7 +42,7 @@ place_headers: create_dir
 	@cp headers/depth_manager.hpp /usr/include/web/depth_manager.hpp
 
 test:
-	g++ -o test test.cpp /usr/local/lib/web/web.a $(FLAGS)
+	g++ -o test test.cpp /usr/local/lib/web/web.a $(TESTING_FLAGS)
 	./test
 	rm test
 
