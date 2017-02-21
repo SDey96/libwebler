@@ -2,8 +2,8 @@
 #include <regex>
 #include <string>
 #include <thread>
-#include <web/channel.hpp>
-#include <web/depth_manager.hpp>
+#include <web/Channel.hpp>
+#include <web/DepthHandler.hpp>
 using namespace std;
 
 // TODO: update with proper regex to test
@@ -11,11 +11,11 @@ void DH_function(web::Channel<web::channel_data> *chanGet,web::Channel<web::chan
 	web::DepthHandler DH(
 		string("(.*?)"),
 		chanGet,
-		chanPut
+		chanPut,
+		true
 	);
 
 	DH.start();
-	cout << "DepthHandler test is over" << endl;
 }
 
 int main () {
@@ -27,23 +27,21 @@ int main () {
 	
 	c_get_data.links.push_back(string("http://timesofindia.indiatimes.com/2016/1/1/archivelist/year-2016,month-1,starttime-42370.cms"));
 	chan_get->add(c_get_data);
-	chan_get->close();
 
 	thread t = thread(DH_function,chan_get,chan_put);
 	
 	bool closed;
 	cout << "Waiting to retrieve ..." << endl;
 	c_res_data = chan_put->retrieve(&closed);
+	chan_get->close();
 	cout << "Retrieved ..." << endl;
-	if(closed){
-		cout << "Channel is closed" << endl;
-	} else {
-		for(vector<string>::iterator it=c_res_data.links.begin(); it!=c_res_data.links.end(); ++it ) {
-    		cout << *it << endl;
-		}
+
+	for(vector<string>::iterator it=c_res_data.links.begin(); it!=c_res_data.links.end(); ++it ) {
+   		cout << *it << endl;
 	}
 
 	t.join();
+	cout << "DepthHandler test is over" << endl;
 
 	return 0;
 }

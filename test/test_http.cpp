@@ -12,5 +12,7 @@ int main () {
 		cout << "Error occured" << endl;		
 	}
 
+	cout << "HTTP GET test is over" << endl;
+
 	return 0;
 }

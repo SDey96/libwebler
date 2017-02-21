@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
-#include <web/channel.hpp>
+#include <web/Channel.hpp>
 using namespace std;
 
 #define N 100
@@ -13,7 +13,7 @@ void thread_function(int i,web::Channel<int> *chan) {
 }
 
 void thread_function2(int i,web::Channel<int> *chan) {
-	if(i==50) {
+	if(i==5) {
 		chan->close();
 	}
 	for(int j=0; j<N; j++) {
@@ -26,7 +26,7 @@ int main () {
 
 	web::Channel<int> *chan = new web::Channel<int>;
 
-	int total_threads = 100;
+	int total_threads = 10;
 
 	thread *thread_array = new thread[total_threads];
 
@@ -38,41 +38,45 @@ int main () {
 	
 	// #####
 	// CHANNEL TEST: Normal working of channel
-	// for(int j=0; j<total_threads; j++){
-	// 	thread_array[j] = thread(thread_function,j,chan);
-	// }
+	for(int j=0; j<total_threads; j++){
+		thread_array[j] = thread(thread_function,j,chan);
+	}
 	
-	// for(int j=0; j<t; j++) {
-	// 	arr[chan->retrieve(&closed)]++;
-	// }
+	for(int j=0; j<t; j++) {
+		arr[chan->retrieve(&closed)]++;
+	}
 
-	// for(int j=0; j<total_threads; j++){
-	// 	thread_array[j].join();
-	// }
+	for(int j=0; j<total_threads; j++){
+		thread_array[j].join();
+	}
 	
-	// for(int j=0; j<total_threads; j++) {
-	// 	cout << arr[j] << endl;
-	// }
+	for(int j=0; j<total_threads; j++) {
+		cout << arr[j] << endl;
+		arr[j] = 0;
+	}
 	// #####
+
 
 	// #####
 	// CHANNEL TEST: Testing closing feature of channel
-	// for(int j=0; j<total_threads; j++){
-	// 	thread_array[j] = thread(thread_function2,j,chan);
-	// }
+	for(int j=0; j<total_threads; j++){
+		thread_array[j] = thread(thread_function2,j,chan);
+	}
 
-	// for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
-	// 	arr[j]++;
-	// }
+	for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
+		arr[j]++;
+	}
 
-	// for(int j=0; j<total_threads; j++){
-	// 	thread_array[j].join();
-	// }
+	for(int j=0; j<total_threads; j++){
+		thread_array[j].join();
+	}
 	
-	// for(int j=0; j<total_threads; j++) {
-	// 	cout << arr[j] << endl;
-	// }
+	for(int j=0; j<total_threads; j++) {
+		cout << arr[j] << endl;
+	}
 	// #####
+
+	cout << "Channel test is over" << endl;
 
 	return 0;
 }

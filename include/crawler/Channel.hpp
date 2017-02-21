@@ -106,12 +106,13 @@ template <class T>
 void web::Channel<T>::close() {
 
 	close_mutex.lock();
-	chan_closed = true;
-	int current_waiting = waiting_length;
-	while(--current_waiting >= 0) {
-		sem_post(&buffer_sem);
+	if(!chan_closed){
+		chan_closed = true;
+		int current_waiting = waiting_length;
+		while(--current_waiting >= 0) {
+			sem_post(&buffer_sem);
+		}
 	}
-
 	close_mutex.unlock();
 
 }

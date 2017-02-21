@@ -40,8 +40,8 @@ install: place_headers build_msg $(C_BUILT_OBJECTS)
 	@echo ""
 	@echo "Usage:"
 	@echo "#include <web/http.hpp>"
-	@echo "#include <web/channel.hpp>"
-	@echo "#include <web/crawler.hpp>"
+	@echo "#include <web/Channel.hpp>"
+	@echo "#include <web/WebCrawler.hpp>"
 	@echo "g++ -o your_executable your_program.cpp --std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl"
 	@echo ""
 
