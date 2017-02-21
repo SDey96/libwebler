@@ -13,7 +13,7 @@ void thread_function(int i,web::Channel<int> *chan) {
 }
 
 void thread_function2(int i,web::Channel<int> *chan) {
-	if(i==5) {
+	if(i==50) {
 		chan->close();
 	}
 	for(int j=0; j<N; j++) {
@@ -26,7 +26,7 @@ int main () {
 
 	web::Channel<int> *chan = new web::Channel<int>;
 
-	int total_threads = 10;
+	int total_threads = 100;
 
 	thread *thread_array = new thread[total_threads];
 
@@ -45,6 +45,10 @@ int main () {
 	// for(int j=0; j<t; j++) {
 	// 	arr[chan->retrieve(&closed)]++;
 	// }
+
+	// for(int j=0; j<total_threads; j++){
+	// 	thread_array[j].join();
+	// }
 	
 	// for(int j=0; j<total_threads; j++) {
 	// 	cout << arr[j] << endl;
@@ -59,6 +63,10 @@ int main () {
 
 	// for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
 	// 	arr[j]++;
+	// }
+
+	// for(int j=0; j<total_threads; j++){
+	// 	thread_array[j].join();
 	// }
 	
 	// for(int j=0; j<total_threads; j++) {

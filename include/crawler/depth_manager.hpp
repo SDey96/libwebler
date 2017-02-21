@@ -76,10 +76,11 @@ namespace web {
 		bool in_progress;
 
 		running_pool_data new_depth_util(string,web_chan,web_chan);
+		function<void(web_chan,int)> *end_callback;
 
 	public:
 		DepthPoolManager(int,int); // sets max pool size and thread count
-		void add_new_depth(string,web_chan,web_chan);
+		void add_depth(string,web_chan,web_chan);
 
 	};
 

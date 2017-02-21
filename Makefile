@@ -1,4 +1,5 @@
 CXX = g++ --std=c++14
+LIB = -lpthread -lcurl
 INC = -I include
 
 BUILD_DIR = build
@@ -8,12 +9,10 @@ BIN_DIR = bin
 
 C_SRC_DIR = src/crawler
 C_INC_DIR = include/crawler
-C_SYS_INC_DIR = /usr/local/include/web
-
-ARCHIVE_DIR = /usr/local/lib/web
 TEST_DIR = test
 
-LIB = -lpthread -lcurl
+C_SYS_INC_DIR = /usr/local/include/web
+ARCHIVE_DIR = /usr/local/lib/web
 
 # all source files
 C_SOURCES = $(shell find $(C_SRC_DIR) -type f -name *.cpp)
@@ -63,7 +62,7 @@ uninstall:
 reinstall: uninstall install
 
 # tests
-test: test_channel test_http test_depth_handler
+test: test_channel test_http test_depth_handler test_depth_manager
 	@echo "\nAll test passed!"
 
 test_channel: $(BUILD_DIR)/test/test_channel.o
@@ -101,9 +100,24 @@ $(BUILD_DIR)/test/test_depth_handler.o: $(TEST_DIR)/test_depth_handler.cpp
 	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_depth_handler.o $(TEST_DIR)/test_depth_handler.cpp
 
+test_depth_manager: $(BUILD_DIR)/test/test_depth_manager.o
+	@echo "\n# Testing depth handler ..."
+	@mkdir -p $(BIN_DIR)
+	$(CXX) -o $(BIN_DIR)/test_depth_manager $(BUILD_DIR)/test/test_depth_manager.o $(ARCHIVE_DIR)/web.a $(LIB)
+	./$(BIN_DIR)/test_depth_manager
+	@echo ""
+
+$(BUILD_DIR)/test/test_depth_manager.o: $(TEST_DIR)/test_depth_manager.cpp
+	@mkdir -p $(BUILD_DIR)/test
+	$(CXX) -c -o $(BUILD_DIR)/test/test_depth_manager.o $(TEST_DIR)/test_depth_manager.cpp
+
 
 clean:
-	rm -r $(BUILD_DIR)/*
-	rm -r $(BIN_DIR)/*
+	@echo "Cleaning $(BUILD_DIR)/* ..."
+	@rm -r $(BUILD_DIR)/*
+	@echo "Cleaning $(BIN_DIR)/* ..."
+	@rm -r $(BIN_DIR)/*
 
-.PHONY: clean install uninstall reinstall test test_channel test_http test_depth_handler place_headers build_msg
+clean_test: reinstall test_depth_manager
+
+.PHONY: clean install uninstall reinstall test test_channel test_http test_depth_handler place_headers build_msg clean_test

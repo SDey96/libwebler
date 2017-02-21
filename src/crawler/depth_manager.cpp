@@ -96,15 +96,77 @@ void web::__DepthPoolThreadFunction(string regex_str,web_chan chanGet,web_chan c
 }
 
 /*######### DepthPoolManager #########*/
-web::DepthPoolManager::DepthPoolManager(int pool_size, int thread_count) {
+web::DepthPoolManager::DepthPoolManager(int pool_size, int t_count) {
 
 	max_pool_size = pool_size;
-	thread_count = thread_count;	
+	thread_count = t_count;	
 	rp_count = 0;
+
+	end_callback = new function<void(web_chan,int)>;
+
+	*end_callback = 
+	[this] // captures
+	(web_chan chanGet, int rpd_id)-> void {
+
+		this->pool_mutex.lock();
+		int pool_size = this->running_pool.size();
+			
+		for(int i=0; i<pool_size; i++) { // checking which thread called
+			
+			if(this->running_pool[i]._id == rpd_id) { // thread detected
+
+				this->running_pool[i].threads_active--;
+			
+				if(i==0){ // thread is first in the pool queue
+			
+					while(running_pool.size()>0 && this->running_pool[0].threads_active<=0){
+						// removing finished threads groups from head of pool
+
+						delete this->running_pool[0].chan_get; // deallocating channel which wont be used
+						this->running_pool.pop_front();
+			
+						if(wait_pool.size()>0) { // if wait pool is waiting to run
+
+							// creating running pool data from waiting pool
+							web::wait_pool_data wpd = this->wait_pool.front();
+
+							web::running_pool_data rpd;
+							this->rp_count++;
+							rpd._id = this->rp_count;
+							rpd.chan_get = wpd.chan_get;
+							rpd.threads = new thread[this->thread_count];
+
+							// creating threads for new entry in running pool
+							for(int i=0; i<this->thread_count; i++) {
+								rpd.threads[i] = thread(
+									web::__DepthPoolThreadFunction,
+									wpd.regex_str,
+									wpd.chan_get,
+									wpd.chan_put,
+									(*this->end_callback),
+									rpd._id);
+							}
+
+							rpd.threads_active = this->thread_count;
+							this->running_pool.push_back(rpd);
+							this->wait_pool.pop_front();
+						}
+			
+					}
+			
+				}
+
+				break;
+			}
+
+		}
+
+		this->pool_mutex.unlock();
+	};
 
 }
 
-void web::DepthPoolManager::add_new_depth(string regex_str, web_chan chanGet, web_chan chanPut) {
+void web::DepthPoolManager::add_depth(string regex_str, web_chan chanGet, web_chan chanPut) {
 	pool_mutex.lock();
 	if(running_pool.size()<max_pool_size) {
 		// add in running queue (running pool is not full)
@@ -116,67 +178,6 @@ void web::DepthPoolManager::add_new_depth(string regex_str, web_chan chanGet, we
 		rpd.chan_get = chanGet;
 		rpd.threads = new thread[thread_count];
 
-		// function to run after each thread is over
-		function<void(web_chan,int)> end_callback = 
-		[this,end_callback] // captures
-		(web_chan chanGet, int rpd_id)-> void {
-
-			this->pool_mutex.lock();
-			int pool_size = this->running_pool.size();
-			
-			for(int i=0; i<pool_size; i++) { // checking which thread called
-			
-				if(this->running_pool[i]._id == rpd_id) { // thread detected
-
-					this->running_pool[i].threads_active--;
-			
-					if(i==0){ // thread is first in the pool queue
-			
-						while(running_pool.size()>0 && this->running_pool[i].threads_active<=0){
-							// removing finished threads groups from head of pool
-
-							delete this->running_pool[i].chan_get; // deallocating channel which wont be used
-							this->running_pool.pop_front();
-			
-							if(wait_pool.size()>0) { // if wait pool is waiting to run
-
-								// creating running pool data from waiting pool
-								web::wait_pool_data wpd = this->wait_pool.front();
-
-								web::running_pool_data rpd;
-								this->rp_count++;
-								rpd._id = this->rp_count;
-								rpd.chan_get = wpd.chan_get;
-								rpd.threads = new thread[this->thread_count];
-
-								// creating threads for new entry in running pool
-								for(int i=0; i<this->thread_count; i++) {
-									rpd.threads[i] = thread(
-										web::__DepthPoolThreadFunction,
-										wpd.regex_str,
-										wpd.chan_get,
-										wpd.chan_put,
-										end_callback,
-										rpd._id);
-								}
-
-								rpd.threads_active = this->thread_count;
-								this->running_pool.push_back(rpd);
-								this->wait_pool.pop_front();
-							}
-			
-						}
-			
-					}
-
-					break;
-				}
-
-			}
-
-			this->pool_mutex.unlock();
-		};
-
 		// creating threads in running pool
 		for(int i=0; i<thread_count; i++) {
 			rpd.threads[i] = thread(
@@ -184,13 +185,14 @@ void web::DepthPoolManager::add_new_depth(string regex_str, web_chan chanGet, we
 				regex_str,
 				chanGet,
 				chanPut,
-				end_callback,
+				(*end_callback),
 				rpd._id);
 		}
 
 		rpd.threads_active = thread_count;
 		running_pool.push_back(rpd);
 		pool_mutex.unlock();
+
 
 	} else {
 		// add in waiting pool (running pool is full)
