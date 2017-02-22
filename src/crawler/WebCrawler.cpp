@@ -1,4 +1,5 @@
 #include <crawler/WebCrawler.hpp>
+#include <iostream>
 #include <crawler/DepthManager.hpp>
 using namespace std;
 
@@ -13,8 +14,7 @@ web::WebCrawler::WebCrawler():
 	{}
 
 bool web::WebCrawler::set_metadata(string rt_url, int d, vector<string> regexes) {
-
-	if(!is_in_progress() || regexes.size() != d){
+	if(is_in_progress() || regexes.size() != d){
 		return false;
 	}
 
@@ -29,7 +29,7 @@ bool web::WebCrawler::set_metadata(string rt_url, int d, vector<string> regexes)
 
 bool web::WebCrawler::set_concurrency_options(int d, int t) {
 
-	if(!is_in_progress()){
+	if(is_in_progress()){
 		return false;
 	}
 
@@ -41,7 +41,7 @@ bool web::WebCrawler::set_concurrency_options(int d, int t) {
 }
 
 bool web::WebCrawler::set_callback(void (*cb)(bool, string, vector<string>)) {
-	if(!is_in_progress()) {
+	if(is_in_progress()) {
 		return false;
 	}
 
@@ -55,27 +55,31 @@ bool web::WebCrawler::is_in_progress() {
 
 bool web::WebCrawler::start() {
 
-	if(!metadata_updated || !is_in_progress()){
+	if(!metadata_updated || is_in_progress()){
 		return false;
 	}
 
 	in_progress = true;
 
 	web_chan_ptr* channels = new web_chan_ptr[depth+1];
+	for(int i=0; i<=depth; i++) {
+		channels[i] = new web_chan;
+	}
 
 	web_chan_ptr end_channel = channels[depth];
 
-	web::DepthPoolManager main_dpm(depth,depth_threads);
+	web::DepthPoolManager main_dpm(max_depth,depth_threads);
 
 	web::channel_data root_data;
 	root_data.links.push_back(root_url);
 	channels[0]->add(root_data);
-
 	for(int i=1; i<depth; i++) {
 		main_dpm.add_depth(regexes_str[i-1],channels[i-1],channels[i],false);
 	}
 
 	main_dpm.add_depth(regexes_str[depth-1],channels[depth-1],end_channel,true);
+
+	channels[0]->close();
 
 	bool closed;
 	string url;

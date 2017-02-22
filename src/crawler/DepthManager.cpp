@@ -17,7 +17,6 @@ void web::__DepthPoolThreadFunction(string regex_str,web_chan_ptr chanGet,web_ch
 
 	// end callback when DepthHandler has finished
 	callback(chanGet,rpd_id);
-	if(is_end) chanPut->close();
 
 }
 
@@ -48,7 +47,7 @@ web::DepthPoolManager::DepthPoolManager(int pool_size, int t_count) {
 					while(running_pool.size()>0 && this->running_pool[0].threads_active<=0){
 						// removing finished threads groups from head of pool
 
-						this->running_pool[0].chan_get->close();
+						this->running_pool[0].chan_put->close();
 						this->running_pool.pop_front();
 			
 						if(wait_pool.size()>0) { // if wait pool is waiting to run
@@ -59,7 +58,7 @@ web::DepthPoolManager::DepthPoolManager(int pool_size, int t_count) {
 							web::running_pool_data rpd;
 							this->rp_count++;
 							rpd._id = this->rp_count;
-							rpd.chan_get = wpd.chan_get;
+							rpd.chan_put = wpd.chan_put;
 							rpd.threads = new running_pool_thread_data[this->thread_count];
 
 							// creating threads for new entry in running pool
@@ -107,7 +106,7 @@ void web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr chanGet, we
 		web::running_pool_data rpd;
 		rp_count++;
 		rpd._id = rp_count;
-		rpd.chan_get = chanGet;
+		rpd.chan_put = chanPut;
 		rpd.threads = new running_pool_thread_data[thread_count];
 
 		// creating threads in running pool

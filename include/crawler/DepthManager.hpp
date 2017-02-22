@@ -36,7 +36,7 @@ namespace web {
 	struct running_pool_data {
 		int _id;
 		running_pool_thread_data* threads; // array of threads
-		web_chan_ptr chan_get; // channel to get data
+		web_chan_ptr chan_put; // channel to get data
 		int threads_active; // number of threads active
 		running_pool_data() :threads_active(0) {}
 	};

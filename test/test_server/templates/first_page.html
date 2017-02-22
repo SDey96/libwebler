@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>First Page</title>
+</head>
+<body>
+
+	<ul id="wantedLinks1">
+		
+
+		<li> <a href="http://localhost:{{port}}/intermediate/0/">Link 0</a></li>
+
+
+	</ul>
+
+	<ul id="unwantedLinks">
+		
+		{% for i in range(10) %}
+
+		<li> <a href="http://localhost:{{port}}/intermediate/unwanted/{{i}}/">UW Link {{i}}</a></li>
+
+		{% endfor %}
+
+	</ul>
+
+	<ul id="wantedLinks2">
+		
+		<li> <a href="http://localhost:{{port}}/intermediate/1/">Link 1</a></li>
+
+	</ul>
+
+</body>
+</html>

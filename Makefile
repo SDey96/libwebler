@@ -111,6 +111,17 @@ $(BUILD_DIR)/test/test_depth_manager.o: $(TEST_DIR)/test_depth_manager.cpp
 	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_depth_manager.o $(TEST_DIR)/test_depth_manager.cpp
 
+test_web_crawler: $(BUILD_DIR)/test/test_web_crawler.o
+	@echo "\n# Testing depth handler ..."
+	@mkdir -p $(BIN_DIR)
+	$(CXX) -o $(BIN_DIR)/test_web_crawler $(BUILD_DIR)/test/test_web_crawler.o $(ARCHIVE_DIR)/web.a $(LIB)
+	./$(BIN_DIR)/test_web_crawler
+	@echo ""
+
+$(BUILD_DIR)/test/test_web_crawler.o: $(TEST_DIR)/test_web_crawler.cpp
+	@mkdir -p $(BUILD_DIR)/test
+	$(CXX) -c -o $(BUILD_DIR)/test/test_web_crawler.o $(TEST_DIR)/test_web_crawler.cpp
+
 
 clean:
 	@echo "Cleaning $(BUILD_DIR)/* ..."
@@ -118,6 +129,6 @@ clean:
 	@echo "Cleaning $(BIN_DIR)/* ..."
 	@rm -r $(BIN_DIR)/*
 
-clean_test: reinstall test_depth_manager
+clean_test: reinstall test_web_crawler
 
 .PHONY: clean install uninstall reinstall test test_channel test_http test_depth_handler place_headers build_msg clean_test

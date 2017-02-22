@@ -47,7 +47,7 @@ void web::DepthHandler::start() {
 			res = web::http_get(*url);
 
 			if(res.success) { // GET request was successful
-
+				send_data.links.clear();
 				// filtering the HTML
 				if( regex_search(res.html, html_match, html_extractor) && html_match.size()>1 ){
 					
