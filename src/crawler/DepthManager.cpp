@@ -1,37 +1,40 @@
 #include <crawler/DepthHandler.hpp>
 #include <crawler/DepthManager.hpp>
-#include <crawler/http.hpp>
-#include <iostream>
 using namespace std;
 
 
-/*#####*/
-void web::__DepthPoolThreadFunction(string regex_str,web_chan_ptr chanGet,web_chan_ptr chanPut, function<void(web_chan_ptr,int)> callback, int rpd_id, bool is_end){
+void web::__DepthPoolThreadFunction(
+	string regex_str,
+	web_chan_ptr chan_get,
+	web_chan_ptr chan_put, 
+	function<void(int)> callback, 
+	int rpd_id, 
+	bool is_end ) {
 
 	web::DepthHandler(
 		regex_str,
-		chanGet,
-		chanPut,
+		chan_get,
+		chan_put,
 		is_end
 	).start();
 
 	// end callback when DepthHandler has finished
-	callback(chanGet,rpd_id);
+	return callback(rpd_id);
 
 }
 
 /*######### DepthPoolManager #########*/
-web::DepthPoolManager::DepthPoolManager(int pool_size, int t_count) {
+web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count) {
 
-	max_pool_size = pool_size;
-	thread_count = t_count;	
+	max_pool_size = _max_pool_size;
+	thread_count = _thread_count;	
 	rp_count = 0;
 	end_added = false;
 
-	end_callback = new function<void(web_chan_ptr,int)>;
+	end_callback = new function<void(int)>;
 	*end_callback = 
 	[this] // captures
-	(web_chan_ptr chanGet, int rpd_id)-> void {
+	(int rpd_id)-> void {
 
 		this->pool_mutex.lock();
 		int pool_size = this->running_pool.size();
@@ -93,8 +96,8 @@ web::DepthPoolManager::DepthPoolManager(int pool_size, int t_count) {
 
 }
 
-void web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr chanGet, web_chan_ptr chanPut, bool is_end) {
-	if (end_added) return;
+bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end) {
+	if (end_added) return false;
 	
 	pool_mutex.lock();
 	if (is_end) end_added = true;
@@ -106,7 +109,7 @@ void web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr chanGet, we
 		web::running_pool_data rpd;
 		rp_count++;
 		rpd._id = rp_count;
-		rpd.chan_put = chanPut;
+		rpd.chan_put = _chan_put;
 		rpd.threads = new running_pool_thread_data[thread_count];
 
 		// creating threads in running pool
@@ -114,8 +117,8 @@ void web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr chanGet, we
 			rpd.threads[i]._t = thread(
 				web::__DepthPoolThreadFunction,
 				regex_str,
-				chanGet,
-				chanPut,
+				_chan_get,
+				_chan_put,
 				(*end_callback),
 				rpd._id,
 				is_end);
@@ -129,8 +132,10 @@ void web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr chanGet, we
 
 	} else {
 		// add in waiting pool (running pool is full)
-		wait_pool.push_back(web::wait_pool_data(regex_str,chanGet,chanPut,is_end));
+		wait_pool.push_back(web::wait_pool_data(regex_str,_chan_get,_chan_put,is_end));
 		pool_mutex.unlock();
 	}
+
+	return true;
 
 }

@@ -1,16 +1,17 @@
 #include <curl/curl.h>
 #include <crawler/http.hpp>
-#include <iostream>
 using namespace std;
 
 size_t curl_writeback(void *contents, size_t size, size_t nmemb, string *s) {
 	size_t newLength = size*nmemb;
 	size_t oldLength = s->size();
 	try {
+		// resizing string
 		s->resize(oldLength + newLength);
 	} catch(bad_alloc &e) {
 		return 0;
 	}
+	// appending new received data
 	copy((char*)contents,(char*)contents+newLength,s->begin()+oldLength);
 	return size*nmemb;
 }

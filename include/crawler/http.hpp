@@ -3,16 +3,20 @@
 #define __WEB_HTTP__
 
 #include <string>
-
+using namespace std;
 namespace web {
 
 	struct http_response {
-		std::string html;
-		bool success;
+		string html; // response HTML
+		bool success; // true if GET request was successful
 		http_response(): success(true), html("") {}
 	};
 
-	web::http_response http_get(std::string);
+	/*
+		* @Params: (URL)
+		* returns http_response datatype
+		**/
+	http_response http_get(string url);
 }
 
 #endif

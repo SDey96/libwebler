@@ -10,28 +10,54 @@ using namespace std;
 
 namespace web {
 	
+	/*
+	* Class template to send and receive data
+	**/
 	template <class T>
 	class Channel {
 
+	public:
+		// Constructor
+		Channel();
+
+		/*
+		* @Params: (Data to add in channel queue)
+		* returns 'false' if channel is closed, else true
+		**/
+		bool add(const T data);
+
+		/*
+		* @Params: (bool variable to be set to true if channel is closed else false)
+		* returns data from the queue of added elements. If channel is closed, it returns empty element.
+		* Note: Check if the channel is closed from the variable passed. Data returned is invalid if channel is closed.
+		**/
+		T retrieve(bool *closed);
+
+		/*
+		* @Params: None
+		* Used to close the channel
+		**/
+		void close();
+
 	private:
 		
-		queue<T> buffer; // buffer to store incoming data
-		bool chan_closed; // true if channel is closed
+		// buffer to store incoming data
+		queue<T> buffer;
 
-		mutex buffer_mutex; // to lock operations on buffer queue
-		mutex close_mutex; // to lock operations on chan_queue
-		sem_t buffer_sem; // to keep track of data in queue
+		// true if channel is closed
+		bool chan_closed;
 
-		atomic<int> waiting_length; // number of retrieve calls waiting for data
+		// to lock operations on buffer queue
+		mutex buffer_mutex;
 
-	public:
-		Channel();
-		~Channel(){}
+		// to lock operations on chan_queue
+		mutex close_mutex;
 
-		int add(const T data) ; // to put data into the channel
-		T retrieve(bool*); // to get data from channel
+		// to check if queue is empty 
+		sem_t buffer_sem;
 
-		void close(); // to close recieving of data (channel closed)
+		// number of retrieve calls waiting for data
+		atomic<int> waiting_length; 
 
 	};
 
@@ -46,7 +72,7 @@ web::Channel<T>::Channel() {
 }
 
 template <class T>
-int web::Channel<T>::add(const T data) {
+bool web::Channel<T>::add(const T data) {
 
 	close_mutex.lock();
 	if(!chan_closed) {
@@ -56,10 +82,10 @@ int web::Channel<T>::add(const T data) {
 		close_mutex.unlock();
 		
 		sem_post(&buffer_sem);
-		return 0;
+		return true;
 	} else {
 		close_mutex.unlock();
-		return -1;
+		return false;
 	}
 
 }

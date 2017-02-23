@@ -1,15 +1,15 @@
-#include <crawler/DepthHandler.hpp>
-#include <crawler/http.hpp>
 #include <iostream>
+#include <crawler/http.hpp>
+#include <crawler/DepthHandler.hpp>
 using namespace std;
 
 /*######### DepthHandler #########*/
-web::DepthHandler::DepthHandler(string rx_str, web_chan_ptr chanGet, web_chan_ptr chanPut, bool isend){
+web::DepthHandler::DepthHandler(string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end){
 
-	regex_str = rx_str;
-	chan_get = chanGet;
-	chan_put = chanPut;
-	is_end = isend;
+	regex_str = _regex_str;
+	chan_get = _chan_get;
+	chan_put = _chan_put;
+	is_end = _is_end;
 
 }
 
@@ -47,17 +47,17 @@ void web::DepthHandler::start() {
 			res = web::http_get(*url);
 
 			if(res.success) { // GET request was successful
-				send_data.links.clear();
 				// filtering the HTML
 				if( regex_search(res.html, html_match, html_extractor) && html_match.size()>1 ){
 					
 					match_length = html_match.size();
+					extracted_urls.clear();
 					if(is_end) {
 						
 						for(int i=1; i<=match_length; i++) {
-							send_data.links.push_back(html_match.str(i));
+							extracted_urls.push_back(html_match.str(i));
 						}
-						send_data.links.push_back(*url);
+						extracted_urls.push_back(*url);
 
 					} else {
 						filtered_html = "";
@@ -67,22 +67,21 @@ void web::DepthHandler::start() {
 						}
 
 						// extracting URL
-						extracted_urls.clear();
 						copy(
 						    sregex_token_iterator( filtered_html.begin(), filtered_html.end(), link_extractor, 1 ),
 						    sregex_token_iterator(),
 						    back_inserter(extracted_urls)
 					    );
 
-					    send_data.links = extracted_urls;
 					}
+				    send_data.links = extracted_urls;
 					chan_put->add(send_data);
 					
 				}
 
 			} else {
 				// TODO handle faliure
-				cout << "Fail: " << *url << endl;
+				// cout << "Fail: " << *url << endl;
 			}
 
 		}

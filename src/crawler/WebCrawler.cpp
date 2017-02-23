@@ -1,5 +1,4 @@
 #include <crawler/WebCrawler.hpp>
-#include <iostream>
 #include <crawler/DepthManager.hpp>
 using namespace std;
 
@@ -10,42 +9,42 @@ web::WebCrawler::WebCrawler():
 	in_progress(false),
 	max_depth(3),
 	depth_threads(2),
-	metadata_updated(false)
-	{}
+	basedata_updated(false) {}
 
-bool web::WebCrawler::set_metadata(string rt_url, int d, vector<string> regexes) {
-	if(is_in_progress() || regexes.size() != d){
+bool web::WebCrawler::set_basedata(string _root_url, int _depth, vector<string> _regexes_str) {
+
+	if(is_in_progress() || _depth<=0 || _regexes_str.size() != _depth){
 		return false;
 	}
 
-	root_url = rt_url;
-	depth = d;
-	regexes_str = regexes;
-	metadata_updated = true;
+	root_url = _root_url;
+	depth = _depth;
+	regexes_str = _regexes_str;
+	basedata_updated = true;
 	return true;
 
 }
 
 
-bool web::WebCrawler::set_concurrency_options(int d, int t) {
+bool web::WebCrawler::set_concurrency_options(int _max_depth, int _depth_threads) {
 
-	if(is_in_progress()){
+	if(is_in_progress() || _max_depth<=0 || _depth_threads<=0){
 		return false;
 	}
 
-	max_depth = d;
-	depth_threads = t;
+	max_depth = _max_depth;
+	depth_threads = _depth_threads;
 
 	return true;
 
 }
 
-bool web::WebCrawler::set_callback(void (*cb)(bool, string, vector<string>)) {
+bool web::WebCrawler::set_callback(void (*_callback)(bool, string, vector<string>)) {
 	if(is_in_progress()) {
 		return false;
 	}
 
-	callback = cb;
+	callback = _callback;
 	return true;
 }
 
@@ -55,38 +54,58 @@ bool web::WebCrawler::is_in_progress() {
 
 bool web::WebCrawler::start() {
 
-	if(!metadata_updated || is_in_progress()){
+	if(!basedata_updated || is_in_progress()){
 		return false;
 	}
 
+	// setting flag to in progress
 	in_progress = true;
 
+	// array of channels to be used in DepthPoolManager
 	web_chan_ptr* channels = new web_chan_ptr[depth+1];
 	for(int i=0; i<=depth; i++) {
 		channels[i] = new web_chan;
 	}
 
+	// channel to get data from last depth
 	web_chan_ptr end_channel = channels[depth];
 
+	// The main DepthPoolManager object for web crawler
 	web::DepthPoolManager main_dpm(max_depth,depth_threads);
 
+	// adding the first URL in the channel
 	web::channel_data root_data;
 	root_data.links.push_back(root_url);
 	channels[0]->add(root_data);
+	
+	// Adding the depths
 	for(int i=1; i<depth; i++) {
+		// depths other than the last depth
 		main_dpm.add_depth(regexes_str[i-1],channels[i-1],channels[i],false);
 	}
-
+	// adding last depth
 	main_dpm.add_depth(regexes_str[depth-1],channels[depth-1],end_channel,true);
 
+	// closing the first sending channel
 	channels[0]->close();
 
+	// getting the data from the last channel
 	bool closed;
 	string url;
-	for(web::channel_data data=end_channel->retrieve(&closed); !closed ; data=end_channel->retrieve(&closed)) {
-		url = data.links.back();
-		data.links.pop_back();
-		callback(true,url,data.links);
+	if(callback){ // If callback is set
+		for(web::channel_data data=end_channel->retrieve(&closed); 
+			!closed ; 
+			data=end_channel->retrieve(&closed)) {
+			
+			url = data.links.back();
+			data.links.pop_back();
+			callback(true,url,data.links);
+
+		}
+	} else {
+		for(web::channel_data data=end_channel->retrieve(&closed); 
+			!closed ; 
+			data=end_channel->retrieve(&closed)) {}
 	}
 
 	return true;

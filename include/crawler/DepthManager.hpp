@@ -5,7 +5,6 @@
 #include <vector>
 #include <deque>
 #include <string>
-#include <regex>
 #include <thread>
 #include <mutex>
 #include <semaphore.h>
@@ -21,68 +20,105 @@ using namespace std;
 namespace web {
 
 	#ifndef __WEB_CHANNEL_DATA__
+	
 	#define __WEB_CHANNEL_DATA__
+	// data type which will be passed through web::Channel
 	struct channel_data {
-		vector<string> links; // URL
+		vector<string> links;
 	};
+
 	#endif
 
+	// single thread data stroed in running_pool_data
 	struct running_pool_thread_data {
-		thread _t;
-		bool is_active;
+		thread _t; // the thread
+		bool is_active; // true if the thread is active
 		running_pool_thread_data(): is_active(false) {}
 	};
 
+	// Data type stored in the running pool of DepthPoolManager
 	struct running_pool_data {
-		int _id;
-		running_pool_thread_data* threads; // array of threads
-		web_chan_ptr chan_put; // channel to get data
-		int threads_active; // number of threads active
+		int _id; // ID for the pool data
+		running_pool_thread_data* threads; // array of threads for that depth
+		web_chan_ptr chan_put; // channel to put data
+		int threads_active; // number of threads active in that depth
 		running_pool_data() :threads_active(0) {}
 	};
 
+	// Data type stored in the waiting pool of DepthPoolManager
 	struct wait_pool_data {
-		string regex_str; // string of regex
+		string regex_str; // regex string for the depth
 		web_chan_ptr chan_get; // channel to get data
 		web_chan_ptr chan_put; // channel to send data
-		bool is_end;
+		bool is_end; // true of it is the last depth
 
 		wait_pool_data() {}
 		wait_pool_data(
-			string rx_str,
-			web_chan_ptr chanGet,
-			web_chan_ptr chanPut,
-			bool isend) {
+			string _regex_str,
+			web_chan_ptr _chan_get,
+			web_chan_ptr _chan_put,
+			bool _is_end) {
 
-			chan_get = chanGet;
-			chan_put = chanPut;
-			regex_str = rx_str;
-			is_end = isend;
+			chan_get = _chan_get;
+			chan_put = _chan_put;
+			regex_str = _regex_str;
+			is_end = _is_end;
 		}
 	};
 
 
 	// function to run on DepthPoolManager thread
-	void __DepthPoolThreadFunction(string, web_chan_ptr, web_chan_ptr, function<void(web_chan_ptr,int)>,int,bool);
+	void __DepthPoolThreadFunction(
+		string regex_str, // regex for the depth
+		web_chan_ptr chan_get, // channel to get data
+		web_chan_ptr chan_put,  // channel to send data
+		function<void(int)> callback, // function to call at the end of thread
+		int rpd_id, // running pool id
+		bool is_end // true if it is the end depth
+	);
 
+	/*
+	* Class to manage DepthHandler objects in a pool of threads to crawl
+	**/
 	class DepthPoolManager {
 
+	public:
+		/*
+		* Constructor
+		* @Params: (max_pool_size, thread_count)
+		**/
+		DepthPoolManager(int _max_pool_size,int _thread_count);
+
+		/*
+		* @Params: (regex for new depth, channel to get, channel to put, true of its last depth)
+		* returns false if the end depth has beed added already, else true
+		**/
+		bool add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end);
+
 	private:
-		int max_pool_size; // max number of depth to crawl at a time
-		int thread_count; // number of threads to create for each depth
-		sem_t pool_size_handler; // to maintain pool size
+		// max number of depth to crawl at a time
+		int max_pool_size;
+
+		// number of threads to create for each depth 
+		int thread_count;
+
+		// to maintain data concurrency of pool queues
 		mutex pool_mutex;
+
+		// total depth added to running pool
 		int rp_count;
 
+		// holds the data of currently running depths
 		deque<running_pool_data> running_pool;
+
+		// holds the data of depths to crawl later
 		deque<wait_pool_data> wait_pool;
+
+		// true if the end depth is added
 		bool end_added;
 
-		function<void(web_chan_ptr,int)> *end_callback;
-
-	public:
-		DepthPoolManager(int,int); // sets max pool size and thread count
-		void add_depth(string,web_chan_ptr,web_chan_ptr,bool);
+		// function to call at the end of every thread
+		function<void(int)> *end_callback;
 
 	};
 

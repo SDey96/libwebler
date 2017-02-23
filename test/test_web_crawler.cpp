@@ -3,13 +3,16 @@
 #include <string>
 #include <thread>
 #include <web/WebCrawler.hpp>
+#include <ctime>
 using namespace std;
+
+int counter = 0;
 
 void callback(bool status, string url, vector<string> data) {
 
 
 	cout << endl;
-	if(status) cout << "YES" << endl;
+	if(status) cout << "Received " << (++counter) << endl;
 	else cout << "NO" << endl;
 	cout << "URL: " << url << endl;
 	for(auto i: data) {
@@ -37,7 +40,7 @@ int main () {
 		string("<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*div\\s+[^>]*id\\s*=\\s*\"wantedData\"[^>]*>([^?]*(?=</div>))</div>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData2\"[^>]*>[^?]*(?=</ul>)</ul>")
 	};
 
-	if(!test_crawler.set_metadata(
+	if(!test_crawler.set_basedata(
 		string("http://localhost:3000/first/"),
 		11,
 		re
@@ -55,7 +58,13 @@ int main () {
 		cout << "Error in setting callback" << endl;
 		return 0;
 	}
+
+	timespec start_time, end_time;
+    clock_gettime(CLOCK_MONOTONIC,&start_time);
 	test_crawler.start();
+    clock_gettime(CLOCK_MONOTONIC,&end_time);
+
+    cout << "Time taken: " << end_time.tv_sec - start_time.tv_sec + (end_time.tv_nsec - start_time.tv_nsec)/1e09 << endl;
 
 
 	return 0;

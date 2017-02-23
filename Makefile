@@ -1,4 +1,4 @@
-CXX = g++ --std=c++14
+CXX = g++ --std=c++14 -O3
 LIB = -lpthread -lcurl
 INC = -I include
 
@@ -23,11 +23,6 @@ _C_INCLUDE = $(shell find $(C_INC_DIR) -type f -name *.hpp)
 # include file names
 C_INCLUDE = $(patsubst $(C_INC_DIR)/%,%,$(_C_INCLUDE))
 
-# building object files
-$(C_BUILD_DIR)/%.o: $(C_SRC_DIR)/%.cpp
-	@mkdir -p $(C_BUILD_DIR)
-	@$(CXX) $(LIB) $(INC) -c -o $@ $<
-
 install: place_headers build_msg $(C_BUILT_OBJECTS)
 	@echo "Creating archive files ..."
 	@mkdir -p $(ARCHIVE_DIR)
@@ -35,15 +30,21 @@ install: place_headers build_msg $(C_BUILT_OBJECTS)
 	@echo ""
 	@echo "Process finished ..."
 	@echo ""
-	@echo "To link web library to your program, use the follow syntax"
-	@echo "use \"--std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl\" with your compilation"
-	@echo ""
-	@echo "Usage:"
-	@echo "#include <web/http.hpp>"
-	@echo "#include <web/Channel.hpp>"
+	@echo "## Usage ##"
+	@echo "Include:"
 	@echo "#include <web/WebCrawler.hpp>"
-	@echo "g++ -o your_executable your_program.cpp --std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl"
 	@echo ""
+	@echo "Compile:"
+	@echo "To link web library to your program, use the follow flags"
+	@echo "\"--std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl\" with your compilation"
+	@echo ""
+	@echo "g++ -o executable program.cpp --std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl"
+	@echo ""
+
+# building object files
+$(C_BUILD_DIR)/%.o: $(C_SRC_DIR)/%.cpp
+	@mkdir -p $(C_BUILD_DIR)
+	@$(CXX) $(LIB) $(INC) -c -o $@ $<
 
 build_msg:
 	@echo "Building object files ..."
@@ -62,8 +63,7 @@ uninstall:
 reinstall: uninstall install
 
 # tests
-test: test_channel test_http test_depth_handler test_depth_manager
-	@echo "\nAll test passed!"
+test: test_web_crawler
 
 test_channel: $(BUILD_DIR)/test/test_channel.o
 	@echo "\n# Testing channel ..."
@@ -88,29 +88,6 @@ $(BUILD_DIR)/test/test_http.o: $(TEST_DIR)/test_http.cpp
 	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_http.o $(TEST_DIR)/test_http.cpp
 
-
-test_depth_handler: $(BUILD_DIR)/test/test_depth_handler.o
-	@echo "\n# Testing depth handler ..."
-	@mkdir -p $(BIN_DIR)
-	$(CXX) -o $(BIN_DIR)/test_depth_handler $(BUILD_DIR)/test/test_depth_handler.o $(ARCHIVE_DIR)/web.a $(LIB)
-	./$(BIN_DIR)/test_depth_handler
-	@echo ""
-
-$(BUILD_DIR)/test/test_depth_handler.o: $(TEST_DIR)/test_depth_handler.cpp
-	@mkdir -p $(BUILD_DIR)/test
-	$(CXX) -c -o $(BUILD_DIR)/test/test_depth_handler.o $(TEST_DIR)/test_depth_handler.cpp
-
-test_depth_manager: $(BUILD_DIR)/test/test_depth_manager.o
-	@echo "\n# Testing depth handler ..."
-	@mkdir -p $(BIN_DIR)
-	$(CXX) -o $(BIN_DIR)/test_depth_manager $(BUILD_DIR)/test/test_depth_manager.o $(ARCHIVE_DIR)/web.a $(LIB)
-	./$(BIN_DIR)/test_depth_manager
-	@echo ""
-
-$(BUILD_DIR)/test/test_depth_manager.o: $(TEST_DIR)/test_depth_manager.cpp
-	@mkdir -p $(BUILD_DIR)/test
-	$(CXX) -c -o $(BUILD_DIR)/test/test_depth_manager.o $(TEST_DIR)/test_depth_manager.cpp
-
 test_web_crawler: $(BUILD_DIR)/test/test_web_crawler.o
 	@echo "\n# Testing depth handler ..."
 	@mkdir -p $(BIN_DIR)
@@ -129,6 +106,4 @@ clean:
 	@echo "Cleaning $(BIN_DIR)/* ..."
 	@rm -r $(BIN_DIR)/*
 
-clean_test: reinstall test_web_crawler
-
-.PHONY: clean install uninstall reinstall test test_channel test_http test_depth_handler place_headers build_msg clean_test
+.PHONY: clean install uninstall reinstall test test_channel test_http test_web_crawler place_headers build_msg

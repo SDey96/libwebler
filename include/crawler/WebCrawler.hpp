@@ -2,33 +2,80 @@
 
 #define __WEB_CRAWLER__
 
-#include <web/http.hpp>
 #include <string>
 #include <vector>
 using namespace std;
 
 namespace web {
 	
+	/*
+	* Main class to start web crawling
+	**/
 	class WebCrawler {
 
-	private:
-		string root_url;
-		int depth;
-		int depth_threads;
-		int max_depth;
-		vector<string> regexes_str;
-		void (*callback)(bool,string,vector<string>);
-		bool in_progress;
-		bool metadata_updated;
-
 	public:
+		// Constructor
 		WebCrawler();
-		bool set_metadata(string, int, vector<string>);
-		bool set_concurrency_options(int, int);
-		bool set_callback(void (*)(bool, string, vector<string>));
+
+		/*
+		* @Params: (first URL, total depth, vector having regex for each depth)
+		* returns 'false' if in progress or wrong data, else 'true'
+		**/
+		bool set_basedata(string _root_url, int _depth, vector<string> _regexes_str);
+
+		/*
+		* @Params: (max_depth, depth_threads)
+		* returns 'false' if in progress, else 'true'
+		**/
+		bool set_concurrency_options(int _max_depth, int _depth_threads);
+
+		/*
+		* @Params: Function of type 'void (bool status, string url, vector<string> data)'
+		*		status: 'true' if successful, else false
+		*		url: URL in the last depth crawled
+		*		data: vector of captures in url using the regex for last depth
+		*
+		* returns 'false' if in progress, else 'true'
+		**/
+		bool set_callback(void (*_callback)(bool, string, vector<string>));
+
+		/*
+		* @Params: None
+		* returns 'true' if in progress, else 'false'
+		**/
 		bool is_in_progress();
 
+		/*
+		* @Params: None
+		* returns 'false' if in progress, else 'true' after crawling is finished
+		* Note: Should be used after successfully calling set_basedata()
+		**/
 		bool start();
+
+	private:
+		// URL to start with
+		string root_url;
+
+		// total depth to crawl (including first URL)
+		int depth;
+
+		// Number of threads to create in a depth
+		int depth_threads;
+
+		// Max number of depths crawling at any given time
+		int max_depth;
+
+		// Regex to parse HTML at every depth
+		vector<string> regexes_str;
+
+		// Called with the data in the last depth
+		void (*callback)(bool,string,vector<string>);
+
+		// true if crawling has started
+		bool in_progress;
+
+		// true if minimum information required is updated (set_basedata() was successful)
+		bool basedata_updated;
 
 	};
 

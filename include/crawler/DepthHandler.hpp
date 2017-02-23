@@ -21,24 +21,45 @@ using namespace std;
 namespace web {
 
 	#ifndef __WEB_CHANNEL_DATA__
+	
 	#define __WEB_CHANNEL_DATA__
+	// data type which will be passed through web::Channel
 	struct channel_data {
-		vector<string> links; // URL
+		vector<string> links;
 	};
+
 	#endif
 
+	/*
+	* Class to crawl a specific depth
+	**/
 	class DepthHandler {
 
-	private:
-		web_chan_ptr chan_get; // channel to get data
-		web_chan_ptr chan_put; // channel to send data
-		string regex_str; // string of regex
-		bool is_end;
-	
-
 	public:
-		DepthHandler(string,web_chan_ptr,web_chan_ptr,bool);
-		void start(); // start making HTTP requests
+		/*
+		* Constructor
+		* @Params: (regex for the depth, channel to get, channel to put, true of its last depth)
+		**/
+		DepthHandler(string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end);
+		
+		/*
+		* @Params: None
+		* To start the process of crawling the depth
+		**/
+		void start();
+
+	private:
+		// channel to get data
+		web_chan_ptr chan_get;
+
+		// channel to send data
+		web_chan_ptr chan_put;
+
+		// regex string to match with html 
+		string regex_str;
+
+		// true if the depth is the last depth
+		bool is_end;
 
 	};
 
