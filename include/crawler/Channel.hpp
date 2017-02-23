@@ -1,6 +1,6 @@
-#ifndef __WEB_CHANNEL__
+#ifndef __WEBLER_CHANNEL__
 
-#define __WEB_CHANNEL__
+#define __WEBLER_CHANNEL__
 
 #include <queue>
 #include <mutex>

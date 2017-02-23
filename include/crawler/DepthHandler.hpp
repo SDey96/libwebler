@@ -1,6 +1,6 @@
-#ifndef __WEB_DEPTH_HANDLER__
+#ifndef __WEBLER_DEPTH_HANDLER__
 
-#define __WEB_DEPTH_HANDLER__
+#define __WEBLER_DEPTH_HANDLER__
 
 #include <vector>
 #include <deque>
@@ -9,20 +9,20 @@
 #include <thread>
 #include <mutex>
 #include <semaphore.h>
-#include <web/Channel.hpp>
+#include <webler/Channel.hpp>
 using namespace std;
 
-#ifndef __WEB_CHANNEL_PREPROC__
-#define __WEB_CHANNEL_PREPROC__
+#ifndef __WEBLER_CHANNEL_PREPROC__
+#define __WEBLER_CHANNEL_PREPROC__
 #define web_chan_ptr web::Channel<channel_data>*
 #define web_chan web::Channel<channel_data>
 #endif
 
 namespace web {
 
-	#ifndef __WEB_CHANNEL_DATA__
+	#ifndef __WEBLER_CHANNEL_DATA__
 	
-	#define __WEB_CHANNEL_DATA__
+	#define __WEBLER_CHANNEL_DATA__
 	// data type which will be passed through web::Channel
 	struct channel_data {
 		vector<string> links;

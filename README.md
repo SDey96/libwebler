@@ -2,8 +2,8 @@
 
 ## Install
 ```
-$ git clone https://github.com/thecodesome/web.git
-$ cd web/
+$ git clone https://github.com/thecodesome/libwebler.git
+$ cd libwebler/
 $ sudo make install
 $ make clean
 ```
@@ -11,21 +11,19 @@ $ make clean
 ## How to use?
 ### Include
 ```
-#include <web/http.hpp>
-#include <web/Channel.hpp>
-#include <web/WebCrawler.hpp>
+#include <webler/WebCrawler.hpp>
 ```
 
 ### Compile
-`--std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl`
+`--std=c++14 -lwebler -lpthread -lcurl`
 ```
-$ g++ -o executable program.cpp --std=c++14 /usr/local/lib/web/web.a -lpthread -lcurl
+$ g++ -o executable program.cpp --std=c++14 -lwebler -lpthread -lcurl
 ```
 
 ## Tests
 > You will need python and Flask to use our testing
 
-From the cloned repo and inside `web` folder, follow these steps
+From the cloned repo and inside `libwebler` folder, follow these steps
 
 #### Start the server
 ```
@@ -34,7 +32,7 @@ $ python server.py
 ```
 
 #### Start the test
-In another terminal tab, with directory set to the `web` folder, run the below command
+In another terminal tab, with directory set to the `libwebler` folder, run the below command
 ```
 $ make test
 ```

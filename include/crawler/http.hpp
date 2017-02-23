@@ -1,6 +1,6 @@
-#ifndef __WEB_HTTP__
+#ifndef __WEBLER_HTTP__
 
-#define __WEB_HTTP__
+#define __WEBLER_HTTP__
 
 #include <string>
 using namespace std;
@@ -13,9 +13,9 @@ namespace web {
 	};
 
 	/*
-		* @Params: (URL)
-		* returns http_response datatype
-		**/
+	* @Params: (URL)
+	* returns http_response datatype
+	**/
 	http_response http_get(string url);
 }
 
