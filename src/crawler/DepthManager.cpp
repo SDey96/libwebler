@@ -139,3 +139,17 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 	return true;
 
 }
+bool web::DepthPoolManager::cleanup() {
+
+	if (running_pool.size()>0 || !end_added){
+		return false;
+	}
+
+	if(end_callback){
+		delete end_callback;
+		end_callback = nullptr;
+	}
+
+	return true;
+
+}

@@ -96,7 +96,7 @@ bool web::WebCrawler::start() {
 		for(web::channel_data data=end_channel->retrieve(&closed); 
 			!closed ; 
 			data=end_channel->retrieve(&closed)) {
-			
+
 			url = data.links.back();
 			data.links.pop_back();
 			callback(true,url,data.links);
@@ -107,6 +107,13 @@ bool web::WebCrawler::start() {
 			!closed ; 
 			data=end_channel->retrieve(&closed)) {}
 	}
+
+	for(int i=0; i<=depth; i++) {
+		delete channels[i];
+	}
+	delete channels;
+
+	while(!main_dpm.cleanup());
 
 	return true;
 

@@ -41,17 +41,18 @@ install: place_headers build_msg $(C_BUILT_OBJECTS)
 	@echo "To link webler library to your program, use the follow flags"
 	@echo "\"--std=c++14 $(WEB_LIB) -lpthread -lcurl\" with your compilation"
 	@echo ""
-	@echo "g++ -o executable program.cpp --std=c++14 $(WEB_LIB) -lpthread -lcurl"
+	@echo "\$$ g++ -o executable program.cpp --std=c++14 $(WEB_LIB) -lpthread -lcurl"
 	@echo ""
 
 # building object files
 $(C_BUILD_DIR)/%.o: $(C_SRC_DIR)/%.cpp
-	@echo "Building $* ..."
+	@printf %s "Building $* ..."
 	@mkdir -p $(C_BUILD_DIR)
 	@$(CXX) $(LIB) $(INC) -c -o $@ $<
+	@echo "done"
 
 build_msg:
-	@echo "Building objects ..."
+	@echo "Building objects"
 
 place_headers:
 	@mkdir -p $(C_SYS_INC_DIR)
@@ -105,8 +106,10 @@ $(BUILD_DIR)/test/test_web_crawler.o: $(TEST_DIR)/test_web_crawler.cpp
 
 clean:
 	@echo "Cleaning $(BUILD_DIR)/* ..."
-	@rm -r $(BUILD_DIR)/*
+	@rm -rf $(BUILD_DIR)/*
 	@echo "Cleaning $(BIN_DIR)/* ..."
-	@rm -r $(BIN_DIR)/*
+	@rm -rf $(BIN_DIR)/*
+
+tt: reinstall test
 
 .PHONY: clean install uninstall reinstall test test_channel test_http test_web_crawler place_headers build_msg

@@ -95,6 +95,13 @@ namespace web {
 		**/
 		bool add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end);
 
+		/*
+		* @Params: None
+		* deletes the end_callback if exists 
+		* returns false if in progress or end depth not added, true if deleted
+		**/
+		bool cleanup();
+
 	private:
 		// max number of depth to crawl at a time
 		int max_pool_size;
