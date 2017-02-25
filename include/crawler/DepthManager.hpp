@@ -20,13 +20,21 @@ using namespace std;
 namespace web {
 
 	#ifndef __WEBLER_CHANNEL_DATA__
-	
 	#define __WEBLER_CHANNEL_DATA__
 	// data type which will be passed through web::Channel
 	struct channel_data {
 		vector<string> links;
 	};
+	#endif
 
+	#ifndef __WEBLER_FAILED_URL__
+	#define __WEBLER_FAILED_URL__
+	struct failed_url {
+		string url;
+		int depth;
+		failed_url() {}
+		failed_url(string u, int d): url(u), depth(d) {}
+	};
 	#endif
 
 	// single thread data stroed in running_pool_data
@@ -74,7 +82,8 @@ namespace web {
 		web_chan_ptr chan_put,  // channel to send data
 		function<void(int)> callback, // function to call at the end of thread
 		int rpd_id, // running pool id
-		bool is_end // true if it is the end depth
+		bool is_end, // true if it is the end depth
+		Channel<failed_url>* chan_failed_url // channel for failed URL
 	);
 
 	/*
@@ -85,9 +94,9 @@ namespace web {
 	public:
 		/*
 		* Constructor
-		* @Params: (max_pool_size, thread_count)
+		* @Params: (max_pool_size, thread_count,channel to collet failed URL)
 		**/
-		DepthPoolManager(int _max_pool_size,int _thread_count);
+		DepthPoolManager(int _max_pool_size,int _thread_count,Channel<failed_url>* _failed_urls);
 
 		/*
 		* @Params: (regex for new depth, channel to get, channel to put, true of its last depth)
@@ -126,6 +135,9 @@ namespace web {
 
 		// function to call at the end of every thread
 		function<void(int)> *end_callback;
+
+		// vector to contain the failed urls
+		Channel<failed_url>* chan_failed_urls;
 
 	};
 

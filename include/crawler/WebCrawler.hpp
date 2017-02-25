@@ -7,6 +7,16 @@
 using namespace std;
 
 namespace web {
+
+	#ifndef __WEBLER_FAILED_URL__
+	#define __WEBLER_FAILED_URL__
+	struct failed_url {
+		string url;
+		int depth;
+		failed_url() {}
+		failed_url(string u, int d): url(u), depth(d) {}
+	};
+	#endif
 	
 	/*
 	* Main class to start web crawling
@@ -52,6 +62,12 @@ namespace web {
 		**/
 		bool start();
 
+		/*
+		* @Params: None
+		* returns a vector<failed_url> containing all failed URL
+		**/
+		vector<failed_url> get_failed_url();
+
 	private:
 		// URL to start with
 		string root_url;
@@ -77,6 +93,8 @@ namespace web {
 		// true if minimum information required is updated (set_basedata() was successful)
 		bool basedata_updated;
 
+		// vector containing all failed URLs
+		vector<failed_url> failed_urls;
 	};
 
 }

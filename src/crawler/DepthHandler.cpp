@@ -1,15 +1,16 @@
-#include <iostream>
 #include <crawler/http.hpp>
 #include <crawler/DepthHandler.hpp>
 using namespace std;
 
 /*######### DepthHandler #########*/
-web::DepthHandler::DepthHandler(string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end){
+web::DepthHandler::DepthHandler(int d, string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end,Channel<failed_url>* _failed_urls){
 
 	regex_str = _regex_str;
 	chan_get = _chan_get;
 	chan_put = _chan_put;
 	is_end = _is_end;
+	chan_failed_urls = _failed_urls;
+	depth = d;
 
 }
 
@@ -80,8 +81,7 @@ void web::DepthHandler::start() {
 				}
 
 			} else {
-				// TODO handle faliure
-				// cout << "Fail: " << *url << endl;
+				chan_failed_urls->add(web::failed_url(*url,depth));
 			}
 
 		}

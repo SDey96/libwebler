@@ -9,13 +9,16 @@ void web::__DepthPoolThreadFunction(
 	web_chan_ptr chan_put, 
 	function<void(int)> callback, 
 	int rpd_id, 
-	bool is_end ) {
+	bool is_end,
+	Channel<failed_url>* chan_failed_url ) {
 
 	web::DepthHandler(
+		rpd_id,
 		regex_str,
 		chan_get,
 		chan_put,
-		is_end
+		is_end,
+		chan_failed_url
 	).start();
 
 	// end callback when DepthHandler has finished
@@ -24,10 +27,11 @@ void web::__DepthPoolThreadFunction(
 }
 
 /*######### DepthPoolManager #########*/
-web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count) {
+web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, Channel<failed_url>* _failed_urls) {
 
 	max_pool_size = _max_pool_size;
-	thread_count = _thread_count;	
+	thread_count = _thread_count;
+	chan_failed_urls = _failed_urls;	
 	rp_count = 0;
 	end_added = false;
 
@@ -73,7 +77,8 @@ web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count) {
 									wpd.chan_put,
 									(*this->end_callback),
 									rpd._id,
-									wpd.is_end);
+									wpd.is_end,
+									this->chan_failed_urls);
 								rpd.threads[i].is_active = true;
 							}
 
@@ -121,7 +126,8 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 				_chan_put,
 				(*end_callback),
 				rpd._id,
-				is_end);
+				is_end,
+				chan_failed_urls);
 			rpd.threads[i].is_active = true;
 		}
 

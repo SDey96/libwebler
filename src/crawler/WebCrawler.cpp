@@ -1,5 +1,6 @@
 #include <crawler/WebCrawler.hpp>
 #include <crawler/DepthManager.hpp>
+#include <iostream>
 using namespace std;
 
 web::WebCrawler::WebCrawler(): 
@@ -70,8 +71,11 @@ bool web::WebCrawler::start() {
 	// channel to get data from last depth
 	web_chan_ptr end_channel = channels[depth];
 
+	// channel to collect the failed URLs
+	Channel<failed_url> chan_failed_url;
+
 	// The main DepthPoolManager object for web crawler
-	web::DepthPoolManager main_dpm(max_depth,depth_threads);
+	web::DepthPoolManager main_dpm(max_depth,depth_threads,&chan_failed_url);
 
 	// adding the first URL in the channel
 	web::channel_data root_data;
@@ -107,7 +111,9 @@ bool web::WebCrawler::start() {
 			!closed ; 
 			data=end_channel->retrieve(&closed)) {}
 	}
+	
 
+	// deleting all the channels
 	for(int i=0; i<=depth; i++) {
 		delete channels[i];
 	}
@@ -115,6 +121,20 @@ bool web::WebCrawler::start() {
 
 	while(!main_dpm.cleanup());
 
+	// collecting all failed URL
+	chan_failed_url.close();
+	for(web::failed_url data=chan_failed_url.retrieve(&closed); 
+		!closed ; 
+		data=chan_failed_url.retrieve(&closed)) {
+
+		failed_urls.push_back(data);
+
+	}
+
 	return true;
 
+}
+
+vector<web::failed_url> web::WebCrawler::get_failed_url() {
+	return failed_urls;
 }
