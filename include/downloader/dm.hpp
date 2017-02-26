@@ -1,3 +1,7 @@
+#ifndef __WEBLER_DOWNLOADER__
+
+#define __WEBLER_DOWNLOADER__
+
 #include <fstream>
 #include <cstring>
 #include <thread>
@@ -28,16 +32,20 @@ namespace web{
       string tempFileNames[MAX_NO_OF_THREADS];
       ofstream tempOutputFiles[MAX_NO_OF_THREADS];
       thread fileThreadsToDownload[MAX_NO_OF_THREADS];
-    public:
-      DownloadFilePartitions();
+
       auto FileRanges() -> void;
       auto DetermineFileType() -> void;
       auto CleanUpTempFiles()  -> void;
       auto FileSize(const char *url) -> int;
       auto WriteTemporaryPartitions(int index) -> void;
-      auto UserInterface(string url, string outFile) -> void;
-      auto DownloadFile(const char *url, const char *outFile) -> int;
       auto MergeDownloadedPartitions() -> void;
       auto ProcessData(char *ptr, size_t size, size_t nmemb, void *userdata) -> size_t;
+      
+    public:
+      DownloadFilePartitions();
+      auto UserInterface(string url, string outFile) -> void;
+      auto DownloadFile(const char *url, const char *outFile) -> int;
   };
 }
+
+#endif

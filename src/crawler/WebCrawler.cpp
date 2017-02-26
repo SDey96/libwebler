@@ -1,6 +1,6 @@
+#include <regex>
 #include <crawler/WebCrawler.hpp>
 #include <crawler/DepthManager.hpp>
-#include <iostream>
 using namespace std;
 
 web::WebCrawler::WebCrawler(): 
@@ -137,4 +137,18 @@ bool web::WebCrawler::start() {
 
 vector<web::failed_url> web::WebCrawler::get_failed_url() {
 	return failed_urls;
+}
+
+vector<string> web::get_href(string html) {
+	regex link_extractor("<\\s*a\\s+[^>]*href\\s*=\\s*\"([^\"]*)\"", regex::icase);
+	vector<string> extracted_urls;
+
+	copy(
+	    sregex_token_iterator( html.begin(), html.end(), link_extractor, 1 ),
+	    sregex_token_iterator(),
+	    back_inserter(extracted_urls)
+    );
+
+    return extracted_urls;
+
 }

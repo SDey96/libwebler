@@ -97,6 +97,9 @@ namespace web {
 		vector<failed_url> failed_urls;
 	};
 
+	// to extract href from <a> tags of html
+	vector<string> get_href(string html);
+
 }
 
 #endif

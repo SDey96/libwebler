@@ -1,4 +1,4 @@
-#include "dm.hpp"
+#include <downloader/dm.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -169,13 +169,4 @@ auto web::DownloadFilePartitions::UserInterface(string url, string outFile) -> v
   }else{
         cout<<"Error in downloading.\n"<<endl;
   }
-}
-
-int main() {
-  web::DownloadFilePartitions DFP;
-  string url;
-  cin>>url;
-  string filepath = "/home/ck/Project/Download Manager/out.txt";
-  DFP.UserInterface(url,filepath);
-  return 0;
 }
