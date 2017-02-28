@@ -17,7 +17,6 @@ web::DownloadFilePartitions::DownloadFilePartitions (){
   fileSizeResult = 0;
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
     tempFileNames[i] = tempName + to_string(i+1);
-    tempOutputFiles[i].open(tempFileNames[i]);
   }
 };
 
@@ -126,7 +125,7 @@ auto web::DownloadFilePartitions::DownloadFile (const char *url, const char *out
 auto web::DownloadFilePartitions::CleanUpTempFiles() -> void {
    //cout<<"The extension is : "<<extension<<endl;
    if(extension.find("text") != string::npos){
-      extension = ".text";
+      extension = ".txt";
    }
    else if(extension.find("pdf") != string::npos){
      extension = ".pdf";
@@ -150,23 +149,26 @@ auto web::DownloadFilePartitions::CleanUpTempFiles() -> void {
      extension = ".zip";
    }
    //cout<<extension<<endl;
-   string temp = "result" + extension;
-   //cout<<temp<<endl;
+   string temp = oFilePath + extension;
+  //cout<<temp<<endl;
    rename(oFilePath.c_str(),temp.c_str());
-   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
-        remove(tempFileNames[i].c_str());
-   }
 }
 
 auto web::DownloadFilePartitions::UserInterface(string url, string outFile) -> void {
   oFilePath = outFile;
   finalUrl = url;
   cout<<"Downloading..."<<endl;
+  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
+    tempOutputFiles[i].open(tempFileNames[i]);
+  }
   int fileResult = DownloadFile(url.c_str(),outFile.c_str());
   if (fileResult ==  0){
         CleanUpTempFiles();
         cout <<"Download successful.\n" << endl;
   }else{
         cout<<"Error in downloading.\n"<<endl;
+  }
+  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
+       remove(tempFileNames[i].c_str());
   }
 }
