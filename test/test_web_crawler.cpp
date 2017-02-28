@@ -10,7 +10,6 @@ int counter = 0;
 
 void callback(bool status, string url, vector<string> data) {
 
-
 	cout << endl;
 	if(status) cout << "Received " << (++counter) << endl;
 	else cout << "NO" << endl;
@@ -32,21 +31,21 @@ int main () {
 
 	vector<string> re = { regex1, regex1, regex1, regex1, regex1, regex1, regex1, regex1, regex1, regex1, regex2 };
 
-	if(!test_crawler.set_basedata(
+	if(test_crawler.set_basedata(
 		string("http://localhost:3000/first/"),
 		11,
 		re
-	)) {
+	) != web::WC_SUCCESS) {
 		cout << "Error in setting metadata" << endl;
 		return 0;
 	}
 
-	if(!test_crawler.set_concurrency_options(3,5)) {
+	if(test_crawler.set_concurrency_options(3,5) != web::WC_SUCCESS) {
 		cout << "Error in setting concurrency options" << endl;
 		return 0;
 	}
 
-	if(!test_crawler.set_callback(callback)) {
+	if(test_crawler.set_callback(callback) != web::WC_SUCCESS) {
 		cout << "Error in setting callback" << endl;
 		return 0;
 	}

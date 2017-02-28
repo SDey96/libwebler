@@ -23,16 +23,13 @@ $ g++ -o executable program.cpp --std=c++14 -lwebler -lpthread -lcurl
 ## Tests
 > You will need python and Flask to use our testing
 
-From the cloned repo and inside `libwebler` folder, follow these steps
-
 #### Start the server
 ```
-$ cd test/test_server/
-$ python server.py
+$ make start_server
 ```
 
 #### Start the test
-In another terminal tab, with directory set to the `libwebler` folder, run the below command
+In another terminal, run the below command
 ```
 $ make test
 ```

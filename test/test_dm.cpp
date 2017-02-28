@@ -5,7 +5,9 @@ int main() {
   web::DownloadFilePartitions DFP;
   string url;
   cin>>url;
-  string filepath = "~/Desktop/out.txt";
+  string filepath = "~/Desktop/out.pdf";
+
   DFP.UserInterface(url,filepath);
+  
   return 0;
 }

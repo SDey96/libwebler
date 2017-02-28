@@ -9,129 +9,152 @@ web::WebCrawler::WebCrawler():
 	root_url(""), 
 	in_progress(false),
 	max_depth(3),
-	depth_threads(2),
+	depth_threads(5),
 	basedata_updated(false) {}
 
-bool web::WebCrawler::set_basedata(string _root_url, int _depth, vector<string> _regexes_str) {
+int web::WebCrawler::set_basedata(string _root_url, int _depth, vector<string> _regexes_str) {
 
-	if(is_in_progress() || _depth<=0 || _regexes_str.size() != _depth){
-		return false;
+	if(is_in_progress()){
+		return web::WC_EINPROGRESS;
+	}
+
+	if(_depth<=0 || _regexes_str.size() != _depth){
+		return web::WC_EINVALID;
 	}
 
 	root_url = _root_url;
 	depth = _depth;
 	regexes_str = _regexes_str;
 	basedata_updated = true;
-	return true;
+	return web::WC_SUCCESS;
 
 }
 
 
-bool web::WebCrawler::set_concurrency_options(int _max_depth, int _depth_threads) {
+int web::WebCrawler::set_concurrency_options(int _max_depth, int _depth_threads) {
 
-	if(is_in_progress() || _max_depth<=0 || _depth_threads<=0){
-		return false;
+	if(is_in_progress()){
+		return web::WC_EINPROGRESS;
+	}
+
+	if(_max_depth<=0 || _depth_threads<=0){
+		return web::WC_EINVALID;
 	}
 
 	max_depth = _max_depth;
 	depth_threads = _depth_threads;
 
-	return true;
+	return web::WC_SUCCESS;
 
 }
 
-bool web::WebCrawler::set_callback(void (*_callback)(bool, string, vector<string>)) {
-	if(is_in_progress()) {
-		return false;
+int web::WebCrawler::set_callback(void (*_callback)(bool, string, vector<string>)) {
+	if(is_in_progress()){
+		return web::WC_EINPROGRESS;
 	}
 
 	callback = _callback;
-	return true;
+	return web::WC_SUCCESS;
 }
 
 bool web::WebCrawler::is_in_progress() {
 	return in_progress;
 }
 
-bool web::WebCrawler::start() {
+int web::WebCrawler::start() {
 
-	if(!basedata_updated || is_in_progress()){
-		return false;
-	}
+	try {
 
-	// setting flag to in progress
-	in_progress = true;
+		if(is_in_progress()){
+			return web::WC_EINPROGRESS;
+		}
 
-	// array of channels to be used in DepthPoolManager
-	web_chan_ptr* channels = new web_chan_ptr[depth+1];
-	for(int i=0; i<=depth; i++) {
-		channels[i] = new web_chan;
-	}
+		if(!basedata_updated){
+			return web::WC_EINVALID;
+		}
 
-	// channel to get data from last depth
-	web_chan_ptr end_channel = channels[depth];
+		// setting flag to in progress
+		in_progress = true;
 
-	// channel to collect the failed URLs
-	Channel<failed_url> chan_failed_url;
+		// array of channels to be used in DepthPoolManager
+		web_chan_ptr* channels = new web_chan_ptr[depth+1];
+		for(int i=0; i<=depth; i++) {
+			channels[i] = new web_chan;
+		}
 
-	// The main DepthPoolManager object for web crawler
-	web::DepthPoolManager main_dpm(max_depth,depth_threads,&chan_failed_url);
+		// channel to get data from last depth
+		web_chan_ptr end_channel = channels[depth];
 
-	// adding the first URL in the channel
-	web::channel_data root_data;
-	root_data.links.push_back(root_url);
-	channels[0]->add(root_data);
-	
-	// Adding the depths
-	for(int i=1; i<depth; i++) {
-		// depths other than the last depth
-		main_dpm.add_depth(regexes_str[i-1],channels[i-1],channels[i],false);
-	}
-	// adding last depth
-	main_dpm.add_depth(regexes_str[depth-1],channels[depth-1],end_channel,true);
+		// channel to collect the failed URLs
+		Channel<failed_url> chan_failed_url;
 
-	// closing the first sending channel
-	channels[0]->close();
+		// The main DepthPoolManager object for web crawler
+		web::DepthPoolManager main_dpm(max_depth,depth_threads,&chan_failed_url);
 
-	// getting the data from the last channel
-	bool closed;
-	string url;
-	if(callback){ // If callback is set
-		for(web::channel_data data=end_channel->retrieve(&closed); 
+		// adding the first URL in the channel
+		web::channel_data root_data;
+		root_data.links.push_back(root_url);
+		channels[0]->add(root_data);
+		
+		// Adding the depths
+		for(int i=1; i<depth; i++) {
+			// depths other than the last depth
+			main_dpm.add_depth(regexes_str[i-1],channels[i-1],channels[i],false);
+		}
+		// adding last depth
+		main_dpm.add_depth(regexes_str[depth-1],channels[depth-1],end_channel,true);
+
+		// closing the first sending channel
+		channels[0]->close();
+
+		// getting the data from the last channel
+		bool closed;
+		string url;
+		if(callback){ // If callback is set
+			for(web::channel_data data=end_channel->retrieve(&closed); 
+				!closed ; 
+				data=end_channel->retrieve(&closed)) {
+
+				url = data.links.back();
+				data.links.pop_back();
+				callback(true,url,data.links);
+
+			}
+		} else {
+			for(web::channel_data data=end_channel->retrieve(&closed); 
+				!closed ; 
+				data=end_channel->retrieve(&closed)) {}
+		}
+		
+
+		// deleting all the channels
+		for(int i=0; i<=depth; i++) {
+			delete channels[i];
+		}
+		delete channels;
+
+		while(!main_dpm.cleanup());
+
+		// collecting all failed URL
+		chan_failed_url.close();
+		for(web::failed_url data=chan_failed_url.retrieve(&closed); 
 			!closed ; 
-			data=end_channel->retrieve(&closed)) {
+			data=chan_failed_url.retrieve(&closed)) {
 
-			url = data.links.back();
-			data.links.pop_back();
-			callback(true,url,data.links);
+			failed_urls.push_back(data);
 
 		}
-	} else {
-		for(web::channel_data data=end_channel->retrieve(&closed); 
-			!closed ; 
-			data=end_channel->retrieve(&closed)) {}
-	}
-	
 
-	// deleting all the channels
-	for(int i=0; i<=depth; i++) {
-		delete channels[i];
-	}
-	delete channels;
+		in_progress = false;
 
-	while(!main_dpm.cleanup());
+		return web::WC_SUCCESS;
 
-	// collecting all failed URL
-	chan_failed_url.close();
-	for(web::failed_url data=chan_failed_url.retrieve(&closed); 
-		!closed ; 
-		data=chan_failed_url.retrieve(&closed)) {
+	} catch (...) {
 
-		failed_urls.push_back(data);
-
+		return web::WC_EUNKNOWN;
+		
 	}
 
-	return true;
 
 }
 

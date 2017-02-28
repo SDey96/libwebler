@@ -93,51 +93,49 @@ reinstall: uninstall install
 # tests
 test: test_web_crawler
 
-test_channel: $(BUILD_DIR)/test/test_channel.o
-	@echo "\n# Testing channel ..."
+start_server:
+	python test/test_server/server.py
+
+test_directory:
 	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(BUILD_DIR)/test
+
+test_channel: test_directory $(BUILD_DIR)/test/test_channel.o
+	@echo "\n# Testing channel ..."
 	$(CXX) -o $(BIN_DIR)/test_channel $(BUILD_DIR)/test/test_channel.o  $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_channel
 	@echo ""
 
 $(BUILD_DIR)/test/test_channel.o: $(TEST_DIR)/test_channel.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_channel.o $(TEST_DIR)/test_channel.cpp
 
 
-test_http: $(BUILD_DIR)/test/test_http.o
+test_http: test_directory $(BUILD_DIR)/test/test_http.o
 	@echo "\n# Testing http ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_http $(BUILD_DIR)/test/test_http.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_http
 	@echo ""
 
 $(BUILD_DIR)/test/test_http.o: $(TEST_DIR)/test_http.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_http.o $(TEST_DIR)/test_http.cpp
 
-test_dm: $(BUILD_DIR)/test/test_dm.o
+test_dm: test_directory $(BUILD_DIR)/test/test_dm.o
 	@echo "\n# Testing dm ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_dm $(BUILD_DIR)/test/test_dm.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_dm
 	@echo ""
 
 $(BUILD_DIR)/test/test_dm.o: $(TEST_DIR)/test_dm.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_dm.o $(TEST_DIR)/test_dm.cpp
 
-test_web_crawler: $(BUILD_DIR)/test/test_web_crawler.o
+test_web_crawler: test_directory $(BUILD_DIR)/test/test_web_crawler.o
 	@echo "\n# Testing depth handler ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_web_crawler $(BUILD_DIR)/test/test_web_crawler.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_web_crawler
 	@echo ""
 
 $(BUILD_DIR)/test/test_web_crawler.o: $(TEST_DIR)/test_web_crawler.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_web_crawler.o $(TEST_DIR)/test_web_crawler.cpp
-
 
 clean:
 	@echo "Cleaning $(BUILD_DIR)/* ..."
