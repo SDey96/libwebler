@@ -24,8 +24,17 @@ void callback(bool status, string url, vector<string> data) {
 
 int main () {
 
-	web::WebCrawler test_crawler;
+/*
+Regex
 
+1:
+<\s*ul\s+[^>]*id\s*=\s*"wantedLinks1"[^>]*>([^?]*(?=</ul>))</ul>[^<]*<\s*ul\s+[^>]*id\s*=\s*"unwantedLinks"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\s*ul\s+[^>]*id\s*=\s*"wantedLinks2"[^>]*>([^?]*(?=</ul>))</ul>
+
+2:
+<\s*ul\s+[^>]*id\s*=\s*"junkData"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\s*div\s+[^>]*id\s*=\s*"wantedData"[^>]*>([^?]*(?=</div>))</div>[^<]*<\s*ul\s+[^>]*id\s*=\s*"junkData2"[^>]*>[^?]*(?=</ul>)</ul>
+*/
+
+	web::WebCrawler test_crawler;
 	string regex1("<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks1\"[^>]*>([^?]*(?=</ul>))</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"unwantedLinks\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks2\"[^>]*>([^?]*(?=</ul>))</ul>");
 	string regex2("<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*div\\s+[^>]*id\\s*=\\s*\"wantedData\"[^>]*>([^?]*(?=</div>))</div>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData2\"[^>]*>[^?]*(?=</ul>)</ul>");
 
