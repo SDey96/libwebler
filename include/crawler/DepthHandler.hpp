@@ -1,6 +1,6 @@
-#ifndef __WEBLER_DEPTH_HANDLER__
+#ifndef __WEBLER_DEPTH_HANDLER_HPP__
 
-#define __WEBLER_DEPTH_HANDLER__
+#define __WEBLER_DEPTH_HANDLER_HPP__
 
 #include <vector>
 #include <deque>

@@ -59,21 +59,21 @@ int main () {
 
 	// #####
 	// CHANNEL TEST: Testing closing feature of channel
-	for(int j=0; j<total_threads; j++){
-		thread_array[j] = thread(thread_function2,j,chan);
-	}
+	// for(int j=0; j<total_threads; j++){
+	// 	thread_array[j] = thread(thread_function2,j,chan);
+	// }
 
-	for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
-		arr[j]++;
-	}
+	// for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
+	// 	arr[j]++;
+	// }
 
-	for(int j=0; j<total_threads; j++){
-		thread_array[j].join();
-	}
+	// for(int j=0; j<total_threads; j++){
+	// 	thread_array[j].join();
+	// }
 	
-	for(int j=0; j<total_threads; j++) {
-		cout << arr[j] << endl;
-	}
+	// for(int j=0; j<total_threads; j++) {
+	// 	cout << arr[j] << endl;
+	// }
 	// #####
 
 	cout << "Channel test is over" << endl;

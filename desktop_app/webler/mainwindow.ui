@@ -18,7 +18,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>80</y>
+      <y>90</y>
       <width>501</width>
       <height>31</height>
      </rect>
@@ -28,7 +28,7 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>60</y>
+      <y>70</y>
       <width>67</width>
       <height>17</height>
      </rect>
@@ -80,13 +80,36 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>300</y>
+      <y>350</y>
       <width>501</width>
       <height>31</height>
      </rect>
     </property>
     <property name="text">
      <string>Start Crawling</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>20</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;webler&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+    </property>
+   </widget>
+   <widget class="QTextEdit" name="messages">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>210</y>
+      <width>501</width>
+      <height>131</height>
+     </rect>
     </property>
    </widget>
   </widget>

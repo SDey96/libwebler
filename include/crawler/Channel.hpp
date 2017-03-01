@@ -1,6 +1,6 @@
-#ifndef __WEBLER_CHANNEL__
+#ifndef __WEBLER_CHANNEL_HPP__
 
-#define __WEBLER_CHANNEL__
+#define __WEBLER_CHANNEL_HPP__
 
 #include <queue>
 #include <mutex>

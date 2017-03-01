@@ -133,8 +133,6 @@ int web::WebCrawler::start() {
 		}
 		delete channels;
 
-		while(!main_dpm.cleanup());
-
 		// collecting all failed URL
 		chan_failed_url.close();
 		for(web::failed_url data=chan_failed_url.retrieve(&closed); 

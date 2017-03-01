@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-
+#include <string>
+using namespace std;
 namespace Ui {
 class MainWindow;
 }
@@ -24,8 +25,13 @@ private slots:
 
     void on_submit_clicked();
 
+
 private:
     Ui::MainWindow *ui;
+
+    string current_message;
+    
+    void update_message(string);
 };
 
 #endif // MAINWINDOW_H

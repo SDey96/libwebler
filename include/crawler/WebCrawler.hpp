@@ -1,6 +1,6 @@
-#ifndef __WEBLER_CRAWLER__
+#ifndef __WEBLER_CRAWLER_HPP__
 
-#define __WEBLER_CRAWLER__
+#define __WEBLER_CRAWLER_HPP__
 
 #include <string>
 #include <vector>

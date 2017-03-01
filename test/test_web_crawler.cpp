@@ -45,7 +45,7 @@ Regex
 		11,
 		re
 	) != web::WC_SUCCESS) {
-		cout << "Error in setting metadata" << endl;
+		cout << "Error in setting basedata" << endl;
 		return 0;
 	}
 

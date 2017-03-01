@@ -31,3 +31,5 @@ HEADERS  += mainwindow.h
 FORMS    += mainwindow.ui
 
 LIBS += -lwebler -lpthread -lcurl
+
+QMAKE_CXXFLAGS += -std=c++14

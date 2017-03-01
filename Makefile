@@ -39,6 +39,13 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@mkdir -p $(ARCHIVE_DIR)
 	@ar -cvq $(ARCHIVE_DIR)/$(LIB_NAME).a $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
+	@printf "Installing desktop app ..."
+	@cp desktop_app/build/webler /usr/local/bin/webler
+	@chmod +x /usr/local/bin/webler
+	@chown root: /usr/local/bin/webler
+	@chmod 755 /usr/local/bin/webler
+	@echo "done"
+	@echo ""
 	@echo "Process finished ..."
 	@echo ""
 	@echo "########## Usage ##########"
@@ -52,6 +59,7 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
 	@echo "\$$ g++ -o executable program.cpp --std=c++14 $(WEB_LIB) -lpthread -lcurl"
 	@echo ""
+	@echo "To use desktop app, type 'webler' in terminal"
 	@echo "###########################"
 
 # building object files
@@ -87,6 +95,7 @@ place_headers:
 uninstall:
 	@rm -rf $(SYS_INC_DIR)/
 	@rm -f $(ARCHIVE_DIR)/$(LIB_NAME).a
+	@rm -f /usr/local/bin/webler
 
 reinstall: uninstall install
 
@@ -144,5 +153,6 @@ clean:
 	@rm -rf $(BIN_DIR)/*
 
 tt: reinstall test
+
 
 .PHONY: clean install uninstall reinstall test test_channel test_http test_web_crawler place_headers build_msg
