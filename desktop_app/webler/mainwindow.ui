@@ -6,32 +6,43 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>621</width>
-    <height>436</height>
+    <width>689</width>
+    <height>522</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>webler</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">background: #fff</string>
   </property>
   <widget class="QWidget" name="centralWidget">
    <widget class="QLineEdit" name="lineEdit">
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>90</y>
-      <width>501</width>
+      <y>130</y>
+      <width>581</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true"/>
     </property>
    </widget>
    <widget class="QLabel" name="baseHead">
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>70</y>
-      <width>67</width>
-      <height>17</height>
+      <y>90</y>
+      <width>581</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: rgba(0,204,255,0.1);
+border-bottom: 1px solid rgba(0,204,255,1);
+padding-left: 1em;</string>
     </property>
     <property name="text">
      <string>Base URL</string>
@@ -41,10 +52,15 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>140</y>
-      <width>67</width>
-      <height>17</height>
+      <y>170</y>
+      <width>581</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: rgba(0,204,255,0.1);
+border-bottom: 1px solid rgba(0,204,255,1);
+padding-left: 1em;</string>
     </property>
     <property name="text">
      <string>Depth</string>
@@ -54,9 +70,9 @@
     <property name="geometry">
      <rect>
       <x>140</x>
-      <y>170</y>
-      <width>89</width>
-      <height>25</height>
+      <y>210</y>
+      <width>101</width>
+      <height>31</height>
      </rect>
     </property>
     <property name="text">
@@ -67,10 +83,15 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>170</y>
-      <width>71</width>
-      <height>21</height>
+      <y>210</y>
+      <width>81</width>
+      <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: rgba(0,0,0,0.05);
+padding: 5px;
+border: 1px solid rgba(0,0,0,0.2);</string>
     </property>
     <property name="text">
      <string>0</string>
@@ -80,10 +101,13 @@
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>350</y>
-      <width>501</width>
+      <y>440</y>
+      <width>581</width>
       <height>31</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 2px solid #00ccff;</string>
     </property>
     <property name="text">
      <string>Start Crawling</string>
@@ -92,24 +116,50 @@
    <widget class="QLabel" name="label">
     <property name="geometry">
      <rect>
-      <x>50</x>
-      <y>20</y>
-      <width>151</width>
-      <height>31</height>
+      <x>0</x>
+      <y>0</y>
+      <width>691</width>
+      <height>71</height>
      </rect>
     </property>
+    <property name="styleSheet">
+     <string notr="true">background: #00ccff;
+color: #fff;
+padding-left:3em;</string>
+    </property>
     <property name="text">
-     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:20pt; font-weight:600;&quot;&gt;webler&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:26pt; font-weight:600;&quot;&gt;webler&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
    </widget>
    <widget class="QTextEdit" name="messages">
     <property name="geometry">
      <rect>
       <x>50</x>
-      <y>210</y>
-      <width>501</width>
+      <y>290</y>
+      <width>581</width>
       <height>131</height>
      </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">border: 1px solid rgba(0,0,0,0.2);</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="depthHead_2">
+    <property name="geometry">
+     <rect>
+      <x>50</x>
+      <y>250</y>
+      <width>581</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="styleSheet">
+     <string notr="true">background: rgba(0,204,255,0.1);
+border-bottom: 1px solid rgba(0,204,255,1);
+padding-left: 1em;</string>
+    </property>
+    <property name="text">
+     <string>Logs</string>
     </property>
    </widget>
   </widget>

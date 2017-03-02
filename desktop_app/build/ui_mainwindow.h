@@ -37,6 +37,7 @@ public:
     QPushButton *submit;
     QLabel *label;
     QTextEdit *messages;
+    QLabel *depthHead_2;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -44,33 +45,55 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QStringLiteral("MainWindow"));
-        MainWindow->resize(621, 436);
+        MainWindow->resize(689, 522);
+        MainWindow->setStyleSheet(QStringLiteral("background: #fff"));
         centralWidget = new QWidget(MainWindow);
         centralWidget->setObjectName(QStringLiteral("centralWidget"));
         lineEdit = new QLineEdit(centralWidget);
         lineEdit->setObjectName(QStringLiteral("lineEdit"));
-        lineEdit->setGeometry(QRect(50, 90, 501, 31));
+        lineEdit->setGeometry(QRect(50, 130, 581, 31));
+        lineEdit->setStyleSheet(QStringLiteral(""));
         baseHead = new QLabel(centralWidget);
         baseHead->setObjectName(QStringLiteral("baseHead"));
-        baseHead->setGeometry(QRect(50, 70, 67, 17));
+        baseHead->setGeometry(QRect(50, 90, 581, 31));
+        baseHead->setStyleSheet(QLatin1String("background: rgba(0,204,255,0.1);\n"
+"border-bottom: 1px solid rgba(0,204,255,1);\n"
+"padding-left: 1em;"));
         depthHead = new QLabel(centralWidget);
         depthHead->setObjectName(QStringLiteral("depthHead"));
-        depthHead->setGeometry(QRect(50, 140, 67, 17));
+        depthHead->setGeometry(QRect(50, 170, 581, 31));
+        depthHead->setStyleSheet(QLatin1String("background: rgba(0,204,255,0.1);\n"
+"border-bottom: 1px solid rgba(0,204,255,1);\n"
+"padding-left: 1em;"));
         getDepth = new QPushButton(centralWidget);
         getDepth->setObjectName(QStringLiteral("getDepth"));
-        getDepth->setGeometry(QRect(140, 170, 89, 25));
+        getDepth->setGeometry(QRect(140, 210, 101, 31));
         depthValue = new QLabel(centralWidget);
         depthValue->setObjectName(QStringLiteral("depthValue"));
-        depthValue->setGeometry(QRect(50, 170, 71, 21));
+        depthValue->setGeometry(QRect(50, 210, 81, 31));
+        depthValue->setStyleSheet(QLatin1String("background: rgba(0,0,0,0.05);\n"
+"padding: 5px;\n"
+"border: 1px solid rgba(0,0,0,0.2);"));
         submit = new QPushButton(centralWidget);
         submit->setObjectName(QStringLiteral("submit"));
-        submit->setGeometry(QRect(50, 350, 501, 31));
+        submit->setGeometry(QRect(50, 440, 581, 31));
+        submit->setStyleSheet(QStringLiteral("border: 2px solid #00ccff;"));
         label = new QLabel(centralWidget);
         label->setObjectName(QStringLiteral("label"));
-        label->setGeometry(QRect(50, 20, 151, 31));
+        label->setGeometry(QRect(0, 0, 691, 71));
+        label->setStyleSheet(QLatin1String("background: #00ccff;\n"
+"color: #fff;\n"
+"padding-left:3em;"));
         messages = new QTextEdit(centralWidget);
         messages->setObjectName(QStringLiteral("messages"));
-        messages->setGeometry(QRect(50, 210, 501, 131));
+        messages->setGeometry(QRect(50, 290, 581, 131));
+        messages->setStyleSheet(QStringLiteral("border: 1px solid rgba(0,0,0,0.2);"));
+        depthHead_2 = new QLabel(centralWidget);
+        depthHead_2->setObjectName(QStringLiteral("depthHead_2"));
+        depthHead_2->setGeometry(QRect(50, 250, 581, 31));
+        depthHead_2->setStyleSheet(QLatin1String("background: rgba(0,204,255,0.1);\n"
+"border-bottom: 1px solid rgba(0,204,255,1);\n"
+"padding-left: 1em;"));
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -92,7 +115,8 @@ public:
         getDepth->setText(QApplication::translate("MainWindow", "Enter Depth", Q_NULLPTR));
         depthValue->setText(QApplication::translate("MainWindow", "0", Q_NULLPTR));
         submit->setText(QApplication::translate("MainWindow", "Start Crawling", Q_NULLPTR));
-        label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:20pt; font-weight:600;\">webler</span></p></body></html>", Q_NULLPTR));
+        label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt; font-weight:600;\">webler</span></p></body></html>", Q_NULLPTR));
+        depthHead_2->setText(QApplication::translate("MainWindow", "Logs", Q_NULLPTR));
     } // retranslateUi
 
 };

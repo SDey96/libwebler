@@ -17,45 +17,6 @@ vector<string> _regexString;
 bool crawler_started = false;
 int message_count = 0;
 
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->messages->setReadOnly(true);
-    current_message = "";
-}
-
-MainWindow::~MainWindow() {
-    delete ui;
-}
-
-void MainWindow::on_pushButton_clicked() {}
-
-void MainWindow::on_lineEdit_textEdited(const QString &arg1) {
-    _baseURL = arg1.toUtf8().constData();
-}
-
-void MainWindow::update_message(string msg) {
-    current_message = string("[") + to_string(++message_count) + string("] ") + msg + string("\n") + current_message;
-    ui->messages->document()->setPlainText(current_message.c_str());
-}
-
-void MainWindow::on_getDepth_clicked() {
-    _depth = QInputDialog::getInt(this,tr("Enter Depth"),tr("Depth"));
-    ui->depthValue->setText(QString::number(_depth));
-    update_message(string("Depth set to ") + to_string(_depth));
-    _regexString.clear();
-    update_message("Regex vector cleared");
-    string labels;
-    for(int i=0; i<_depth; i++) {
-        labels = string("Enter regex for depth ") + to_string(i+1) + string(":");
-        _regexString.push_back( QInputDialog::getText(this, tr("Regex"),tr(labels.c_str()), QLineEdit::Normal).toUtf8().constData() );
-        update_message(string("Regex ") + to_string(i+1) + string(" set to ") + _regexString.back());
-    }
-
-}
-
 int counter = 0;
 string sessionid;
 string weblerdir;
@@ -101,10 +62,70 @@ void callback(bool status, string url, vector<string> data) {
 
 }
 
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    ui->messages->setReadOnly(true);
+    current_message = "";
+}
+
+MainWindow::~MainWindow() {
+    delete ui;
+}
+
+void MainWindow::on_pushButton_clicked() {}
+
+void MainWindow::on_lineEdit_textEdited(const QString &arg1) {
+    _baseURL = arg1.toUtf8().constData();
+}
+
+void MainWindow::update_message(string msg) {
+    current_message = string("[") + to_string(++message_count) + string("] ") + msg + string("\n") + current_message;
+    ui->messages->document()->setPlainText(current_message.c_str());
+}
+
+void MainWindow::on_getDepth_clicked() {
+    _depth = QInputDialog::getInt(this,tr("Enter Depth"),tr("Depth"));
+    if(_depth > 0) {
+        ui->depthValue->setText(QString::number(_depth));
+        update_message(string("Depth set to ") + to_string(_depth));
+        _regexString.clear();
+        update_message("Regex vector cleared");
+        string labels;
+        for(int i=0; i<_depth; i++) {
+            labels = string("Enter regex for depth ") + to_string(i+1) + string(":");
+            _regexString.push_back( QInputDialog::getText(this, tr("Regex"),tr(labels.c_str()), QLineEdit::Normal).toUtf8().constData() );
+            update_message(string("Regex ") + to_string(i+1) + string(" set to ") + _regexString.back());
+        }
+    } else {
+        update_message(string("Invalid depth ") + to_string(_depth));
+        _depth = 0;
+        ui->depthValue->setText(QString::number(_depth));
+    }
+
+}
+
 void MainWindow::on_submit_clicked() {
 
     if(crawler_started){
         update_message("Crawling is in progress");
+        return;
+    }
+
+    if(_baseURL == "") {
+        update_message("Error: Invalid base URL");
+        return;
+    }
+
+    if(_depth <= 0) {
+        update_message("Error: Invalid depth");
+        return;
+    }
+
+    if(_depth != _regexString.size()) {
+        update_message("Error: Invalid number of regex");
         return;
     }
 
