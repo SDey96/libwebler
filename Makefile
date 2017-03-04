@@ -39,6 +39,13 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@mkdir -p $(ARCHIVE_DIR)
 	@ar -cvq $(ARCHIVE_DIR)/$(LIB_NAME).a $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
+	@printf "Installing desktop app ..."
+	@cp desktop_app/build/webler /usr/local/bin/webler
+	@chmod +x /usr/local/bin/webler
+	@chown root: /usr/local/bin/webler
+	@chmod 755 /usr/local/bin/webler
+	@echo "done"
+	@echo ""
 	@echo "Process finished ..."
 	@echo ""
 	@echo "########## Usage ##########"
@@ -52,6 +59,7 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
 	@echo "\$$ g++ -o executable program.cpp --std=c++14 $(WEB_LIB) -lpthread -lcurl"
 	@echo ""
+	@echo "To use desktop app, type 'webler' in terminal"
 	@echo "###########################"
 
 # building object files
@@ -87,57 +95,56 @@ place_headers:
 uninstall:
 	@rm -rf $(SYS_INC_DIR)/
 	@rm -f $(ARCHIVE_DIR)/$(LIB_NAME).a
+	@rm -f /usr/local/bin/webler
 
 reinstall: uninstall install
 
 # tests
 test: test_web_crawler
 
-test_channel: $(BUILD_DIR)/test/test_channel.o
-	@echo "\n# Testing channel ..."
+start_server:
+	python test/test_server/server.py
+
+test_directory:
 	@mkdir -p $(BIN_DIR)
+	@mkdir -p $(BUILD_DIR)/test
+
+test_channel: test_directory $(BUILD_DIR)/test/test_channel.o
+	@echo "\n# Testing channel ..."
 	$(CXX) -o $(BIN_DIR)/test_channel $(BUILD_DIR)/test/test_channel.o  $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_channel
 	@echo ""
 
 $(BUILD_DIR)/test/test_channel.o: $(TEST_DIR)/test_channel.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_channel.o $(TEST_DIR)/test_channel.cpp
 
 
-test_http: $(BUILD_DIR)/test/test_http.o
+test_http: test_directory $(BUILD_DIR)/test/test_http.o
 	@echo "\n# Testing http ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_http $(BUILD_DIR)/test/test_http.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_http
 	@echo ""
 
 $(BUILD_DIR)/test/test_http.o: $(TEST_DIR)/test_http.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_http.o $(TEST_DIR)/test_http.cpp
 
-test_dm: $(BUILD_DIR)/test/test_dm.o
+test_dm: test_directory $(BUILD_DIR)/test/test_dm.o
 	@echo "\n# Testing dm ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_dm $(BUILD_DIR)/test/test_dm.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_dm
 	@echo ""
 
 $(BUILD_DIR)/test/test_dm.o: $(TEST_DIR)/test_dm.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_dm.o $(TEST_DIR)/test_dm.cpp
 
-test_web_crawler: $(BUILD_DIR)/test/test_web_crawler.o
+test_web_crawler: test_directory $(BUILD_DIR)/test/test_web_crawler.o
 	@echo "\n# Testing depth handler ..."
-	@mkdir -p $(BIN_DIR)
 	$(CXX) -o $(BIN_DIR)/test_web_crawler $(BUILD_DIR)/test/test_web_crawler.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_web_crawler
 	@echo ""
 
 $(BUILD_DIR)/test/test_web_crawler.o: $(TEST_DIR)/test_web_crawler.cpp
-	@mkdir -p $(BUILD_DIR)/test
 	$(CXX) -c -o $(BUILD_DIR)/test/test_web_crawler.o $(TEST_DIR)/test_web_crawler.cpp
-
 
 clean:
 	@echo "Cleaning $(BUILD_DIR)/* ..."
@@ -146,5 +153,6 @@ clean:
 	@rm -rf $(BIN_DIR)/*
 
 tt: reinstall test
+
 
 .PHONY: clean install uninstall reinstall test test_channel test_http test_web_crawler place_headers build_msg

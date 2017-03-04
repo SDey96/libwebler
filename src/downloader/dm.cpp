@@ -17,7 +17,7 @@ web::DownloadFilePartitions::DownloadFilePartitions (){           //Constructor 
   fullFileSize = 0.0;
   fileSizeResult = 0;
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
-    tempFileNames[i] = tempName + to_string(i+1);                 //OPening MAX_NO_OF_THREADS temporary files.
+    tempFileNames[i] = tempName + to_string(i+1);                 //Opening MAX_NO_OF_THREADS temporary files.
   }
 };
 

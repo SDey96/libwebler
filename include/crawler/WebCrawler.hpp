@@ -1,12 +1,17 @@
-#ifndef __WEBLER_CRAWLER__
+#ifndef __WEBLER_CRAWLER_HPP__
 
-#define __WEBLER_CRAWLER__
+#define __WEBLER_CRAWLER_HPP__
 
 #include <string>
 #include <vector>
 using namespace std;
 
 namespace web {
+
+	const int WC_SUCCESS = 0;
+	const int WC_EINVALID = -1;
+	const int WC_EUNKNOWN = -2;
+	const int WC_EINPROGRESS = -3;
 
 	#ifndef __WEBLER_FAILED_URL__
 	#define __WEBLER_FAILED_URL__
@@ -16,7 +21,7 @@ namespace web {
 		failed_url() {}
 		failed_url(string u, int d): url(u), depth(d) {}
 	};
-	#endif
+	#endif /*__WEBLER_FAILED_URL__*/
 	
 	/*
 	* Main class to start web crawling
@@ -31,13 +36,13 @@ namespace web {
 		* @Params: (first URL, total depth, vector having regex for each depth)
 		* returns 'false' if in progress or wrong data, else 'true'
 		**/
-		bool set_basedata(string _root_url, int _depth, vector<string> _regexes_str);
+		int set_basedata(string _root_url, int _depth, vector<string> _regexes_str);
 
 		/*
 		* @Params: (max_depth, depth_threads)
 		* returns 'false' if in progress, else 'true'
 		**/
-		bool set_concurrency_options(int _max_depth, int _depth_threads);
+		int set_concurrency_options(int _max_depth, int _depth_threads);
 
 		/*
 		* @Params: Function of type 'void (bool status, string url, vector<string> data)'
@@ -47,7 +52,7 @@ namespace web {
 		*
 		* returns 'false' if in progress, else 'true'
 		**/
-		bool set_callback(void (*_callback)(bool, string, vector<string>));
+		int set_callback(void (*_callback)(string, vector<string>));
 
 		/*
 		* @Params: None
@@ -60,7 +65,7 @@ namespace web {
 		* returns 'false' if in progress, else 'true' after crawling is finished
 		* Note: Should be used after successfully calling set_basedata()
 		**/
-		bool start();
+		int start();
 
 		/*
 		* @Params: None
@@ -85,7 +90,7 @@ namespace web {
 		vector<string> regexes_str;
 
 		// Called with the data in the last depth
-		void (*callback)(bool,string,vector<string>);
+		void (*callback)(string,vector<string>);
 
 		// true if crawling has started
 		bool in_progress;
@@ -95,11 +100,12 @@ namespace web {
 
 		// vector containing all failed URLs
 		vector<failed_url> failed_urls;
-	};
+
+	}; /*class WebCrawler*/
 
 	// to extract href from <a> tags of html
 	vector<string> get_href(string html);
 
-}
+} /*namespace web*/
 
-#endif
+#endif /*__WEBLER_CRAWLER_HPP__*/

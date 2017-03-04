@@ -1,6 +1,6 @@
-#ifndef __WEBLER_DEPTH_MANAGER__
+#ifndef __WEBLER_DEPTH_MANAGER_HPP__
 
-#define __WEBLER_DEPTH_MANAGER__
+#define __WEBLER_DEPTH_MANAGER_HPP__
 
 #include <vector>
 #include <deque>
@@ -15,7 +15,7 @@ using namespace std;
 #define __WEBLER_CHANNEL_PREPROC__
 #define web_chan_ptr web::Channel<channel_data>*
 #define web_chan web::Channel<channel_data>
-#endif
+#endif /*__WEBLER_CHANNEL_PREPROC__*/
 
 namespace web {
 
@@ -25,7 +25,7 @@ namespace web {
 	struct channel_data {
 		vector<string> links;
 	};
-	#endif
+	#endif /*__WEBLER_CHANNEL_DATA__*/
 
 	#ifndef __WEBLER_FAILED_URL__
 	#define __WEBLER_FAILED_URL__
@@ -35,7 +35,7 @@ namespace web {
 		failed_url() {}
 		failed_url(string u, int d): url(u), depth(d) {}
 	};
-	#endif
+	#endif /*__WEBLER_FAILED_URL__*/
 
 	// single thread data stroed in running_pool_data
 	struct running_pool_thread_data {
@@ -98,18 +98,13 @@ namespace web {
 		**/
 		DepthPoolManager(int _max_pool_size,int _thread_count,Channel<failed_url>* _failed_urls);
 
+		~DepthPoolManager();
+
 		/*
 		* @Params: (regex for new depth, channel to get, channel to put, true of its last depth)
 		* returns false if the end depth has beed added already, else true
 		**/
 		bool add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end);
-
-		/*
-		* @Params: None
-		* deletes the end_callback if exists 
-		* returns false if in progress or end depth not added, true if deleted
-		**/
-		bool cleanup();
 
 	private:
 		// max number of depth to crawl at a time
@@ -139,8 +134,8 @@ namespace web {
 		// vector to contain the failed urls
 		Channel<failed_url>* chan_failed_urls;
 
-	};
+	}; /*class DepthPoolManager*/
 
-}
+} /*namespace web*/
 
-#endif
+#endif /*__WEBLER_DEPTH_MANAGER_HPP__*/

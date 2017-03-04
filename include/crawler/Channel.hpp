@@ -1,6 +1,6 @@
-#ifndef __WEBLER_CHANNEL__
+#ifndef __WEBLER_CHANNEL_HPP__
 
-#define __WEBLER_CHANNEL__
+#define __WEBLER_CHANNEL_HPP__
 
 #include <queue>
 #include <mutex>
@@ -9,6 +9,9 @@
 using namespace std;
 
 namespace web {
+
+	const int CHAN_SUCCESS = 0;
+	const int CHAN_CLOSED = -1;
 	
 	/*
 	* Class template to send and receive data
@@ -24,12 +27,14 @@ namespace web {
 		* @Params: (Data to add in channel queue)
 		* returns 'false' if channel is closed, else true
 		**/
-		bool add(const T data);
+		int add(const T data);
 
 		/*
 		* @Params: (bool variable to be set to true if channel is closed else false)
-		* returns data from the queue of added elements. If channel is closed, it returns empty element.
-		* Note: Check if the channel is closed from the variable passed. Data returned is invalid if channel is closed.
+		* returns data from the queue of added elements. 
+		* If channel is closed, it returns empty element.
+		* Note: Check if the channel is closed from the variable passed. 
+		* 		Data returned is invalid if channel is closed.
 		**/
 		T retrieve(bool *closed);
 
@@ -37,7 +42,7 @@ namespace web {
 		* @Params: None
 		* Used to close the channel
 		**/
-		void close();
+		int close();
 
 	private:
 		
@@ -59,10 +64,10 @@ namespace web {
 		// number of retrieve calls waiting for data
 		atomic<int> waiting_length; 
 
-	};
+	}; /*class Channel*/
 
 
-}
+} /*namespace web*/
 
 template <class T>
 web::Channel<T>::Channel() {
@@ -72,7 +77,7 @@ web::Channel<T>::Channel() {
 }
 
 template <class T>
-bool web::Channel<T>::add(const T data) {
+int web::Channel<T>::add(const T data) {
 
 	close_mutex.lock();
 	if(!chan_closed) {
@@ -82,10 +87,10 @@ bool web::Channel<T>::add(const T data) {
 		close_mutex.unlock();
 		
 		sem_post(&buffer_sem);
-		return true;
+		return web::CHAN_SUCCESS;
 	} else {
 		close_mutex.unlock();
-		return false;
+		return web::CHAN_CLOSED;
 	}
 
 }
@@ -129,7 +134,7 @@ T web::Channel<T>::retrieve(bool *closed) {
 }
 
 template <class T>
-void web::Channel<T>::close() {
+int web::Channel<T>::close() {
 
 	close_mutex.lock();
 	if(!chan_closed){
@@ -138,9 +143,13 @@ void web::Channel<T>::close() {
 		while(--current_waiting >= 0) {
 			sem_post(&buffer_sem);
 		}
+		close_mutex.unlock();
+		return web::CHAN_SUCCESS;
+	} else {
+		close_mutex.unlock();
+		return web::CHAN_CLOSED;
 	}
-	close_mutex.unlock();
 
 }
 
-#endif
+#endif /*__WEBLER_CHANNEL_HPP__*/

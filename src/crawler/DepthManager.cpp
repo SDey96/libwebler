@@ -101,6 +101,12 @@ web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, C
 
 }
 
+web::DepthPoolManager::~DepthPoolManager() {
+	if(end_callback){
+		delete end_callback;
+	}
+}
+
 bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end) {
 	if (end_added) return false;
 	
@@ -140,20 +146,6 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 		// add in waiting pool (running pool is full)
 		wait_pool.push_back(web::wait_pool_data(regex_str,_chan_get,_chan_put,is_end));
 		pool_mutex.unlock();
-	}
-
-	return true;
-
-}
-bool web::DepthPoolManager::cleanup() {
-
-	if (running_pool.size()>0 || !end_added){
-		return false;
-	}
-
-	if(end_callback){
-		delete end_callback;
-		end_callback = nullptr;
 	}
 
 	return true;

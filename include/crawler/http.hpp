@@ -1,6 +1,6 @@
-#ifndef __WEBLER_HTTP__
+#ifndef __WEBLER_HTTP_HPP__
 
-#define __WEBLER_HTTP__
+#define __WEBLER_HTTP_HPP__
 
 #include <string>
 using namespace std;
