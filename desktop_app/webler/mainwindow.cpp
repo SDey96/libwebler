@@ -9,6 +9,9 @@
 #include <webler/WebCrawler.hpp>
 #include <fstream>
 #include <ctime>
+#include <unistd.h>
+#include <sys/types.h>
+#include <pwd.h>
 using namespace std;
 
 int _depth = 0;
@@ -21,6 +24,7 @@ int counter = 0;
 string sessionid;
 string weblerdir;
 string filedir;
+string homedir = "";
 
 void update_sessionid() {
 
@@ -28,7 +32,7 @@ void update_sessionid() {
     tm *ltm = localtime(&now);
 
     sessionid = to_string(1900 + ltm->tm_year) + to_string(1 + ltm->tm_mon) + to_string(ltm->tm_mday) + to_string(1 + ltm->tm_hour) + to_string(1 + ltm->tm_min) + to_string(1 + ltm->tm_sec);
-    weblerdir = "/home/codesome/webler/" + sessionid;
+    weblerdir = homedir + "/webler/" + sessionid;
     QDir().mkdir(weblerdir.c_str());
 }
 
@@ -36,7 +40,7 @@ void update_file_dir(int x) {
     filedir = weblerdir + "/result_" + to_string(x) + ".txt";
 }
 
-void callback(bool status, string url, vector<string> data) {
+void callback(string url, vector<string> data) {
 
     counter++;
 
@@ -44,19 +48,12 @@ void callback(bool status, string url, vector<string> data) {
     update_file_dir(counter);
     outfile.open(filedir.c_str());
 
-    if(status){
-        outfile << "URL: " << url << endl;
-        outfile << "Data: " << endl;;
-        for(auto i: data) {
-            outfile << i << endl << endl;
-        }
-        cout << filedir << endl;
-    } else {
-        outfile << "FAILED: " << endl;
-        outfile << "URL: " << url << endl;
+    outfile << "URL: " << url << endl;
+    outfile << "Data: " << endl;;
+    for(auto i: data) {
+        outfile << i << endl << endl;
     }
-
-
+    cout << filedir << endl;
 
     outfile.close();
 
@@ -69,6 +66,13 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->messages->setReadOnly(true);
     current_message = "";
+
+    if (getenv("HOME") == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    } else {
+        homedir = getenv("HOME");
+    }
+
 }
 
 MainWindow::~MainWindow() {
@@ -108,6 +112,8 @@ void MainWindow::on_getDepth_clicked() {
 }
 
 void MainWindow::on_submit_clicked() {
+
+    counter = 0;
 
     if(crawler_started){
         update_message("Crawling is in progress");

@@ -48,7 +48,7 @@ int web::WebCrawler::set_concurrency_options(int _max_depth, int _depth_threads)
 
 }
 
-int web::WebCrawler::set_callback(void (*_callback)(bool, string, vector<string>)) {
+int web::WebCrawler::set_callback(void (*_callback)(string, vector<string>)) {
 	if(is_in_progress()){
 		return web::WC_EINPROGRESS;
 	}
@@ -117,7 +117,7 @@ int web::WebCrawler::start() {
 
 				url = data.links.back();
 				data.links.pop_back();
-				callback(true,url,data.links);
+				callback(url,data.links);
 
 			}
 		} else {

@@ -21,7 +21,7 @@ namespace web {
 		failed_url() {}
 		failed_url(string u, int d): url(u), depth(d) {}
 	};
-	#endif
+	#endif /*__WEBLER_FAILED_URL__*/
 	
 	/*
 	* Main class to start web crawling
@@ -52,7 +52,7 @@ namespace web {
 		*
 		* returns 'false' if in progress, else 'true'
 		**/
-		int set_callback(void (*_callback)(bool, string, vector<string>));
+		int set_callback(void (*_callback)(string, vector<string>));
 
 		/*
 		* @Params: None
@@ -90,7 +90,7 @@ namespace web {
 		vector<string> regexes_str;
 
 		// Called with the data in the last depth
-		void (*callback)(bool,string,vector<string>);
+		void (*callback)(string,vector<string>);
 
 		// true if crawling has started
 		bool in_progress;
@@ -100,11 +100,12 @@ namespace web {
 
 		// vector containing all failed URLs
 		vector<failed_url> failed_urls;
-	};
+
+	}; /*class WebCrawler*/
 
 	// to extract href from <a> tags of html
 	vector<string> get_href(string html);
 
-}
+} /*namespace web*/
 
-#endif
+#endif /*__WEBLER_CRAWLER_HPP__*/

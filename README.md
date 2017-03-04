@@ -8,31 +8,17 @@ $ sudo make install
 $ make clean
 ```
 
-## How to use?
-### Include
-```
-#include <webler/WebCrawler.hpp>
-```
-
 ### Compile
 `--std=c++14 -lwebler -lpthread -lcurl`
 ```
 $ g++ -o executable program.cpp --std=c++14 -lwebler -lpthread -lcurl
 ```
 
-## Tests
-> You will need python and Flask to use our testing
+### Desktop app
+Type `webler` in termial to open desktop app
 
-#### Start the server
-```
-$ make start_server
-```
-
-#### Start the test
-In another terminal, run the below command
-```
-$ make test
-```
-You will receive `1024` callbacks from WebCrawler
-
-> Downloader and complete docs coming soon ...
+### Find complete docs here
+* [Crawler](https://github.com/thecodesome/libwebler/blob/master/docs/crawler.md)
+* [Downloader](https://github.com/thecodesome/libwebler/blob/master/docs/downloader.md)
+* [Desktop app](https://github.com/thecodesome/libwebler/blob/master/docs/desktop_app.md)
+* [Tests](https://github.com/thecodesome/libwebler/blob/master/docs/tests.md)

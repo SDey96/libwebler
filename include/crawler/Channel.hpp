@@ -64,10 +64,10 @@ namespace web {
 		// number of retrieve calls waiting for data
 		atomic<int> waiting_length; 
 
-	};
+	}; /*class Channel*/
 
 
-}
+} /*namespace web*/
 
 template <class T>
 web::Channel<T>::Channel() {
@@ -152,4 +152,4 @@ int web::Channel<T>::close() {
 
 }
 
-#endif
+#endif /*__WEBLER_CHANNEL_HPP__*/

@@ -15,7 +15,7 @@ using namespace std;
 #define __WEBLER_CHANNEL_PREPROC__
 #define web_chan_ptr web::Channel<channel_data>*
 #define web_chan web::Channel<channel_data>
-#endif
+#endif /*__WEBLER_CHANNEL_PREPROC__*/
 
 namespace web {
 
@@ -25,7 +25,7 @@ namespace web {
 	struct channel_data {
 		vector<string> links;
 	};
-	#endif
+	#endif /*__WEBLER_CHANNEL_DATA__*/
 
 	#ifndef __WEBLER_FAILED_URL__
 	#define __WEBLER_FAILED_URL__
@@ -35,7 +35,7 @@ namespace web {
 		failed_url() {}
 		failed_url(string u, int d): url(u), depth(d) {}
 	};
-	#endif
+	#endif /*__WEBLER_FAILED_URL__*/
 
 	// single thread data stroed in running_pool_data
 	struct running_pool_thread_data {
@@ -134,8 +134,8 @@ namespace web {
 		// vector to contain the failed urls
 		Channel<failed_url>* chan_failed_urls;
 
-	};
+	}; /*class DepthPoolManager*/
 
-}
+} /*namespace web*/
 
-#endif
+#endif /*__WEBLER_DEPTH_MANAGER_HPP__*/

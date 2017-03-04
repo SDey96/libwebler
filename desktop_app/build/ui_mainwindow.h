@@ -38,6 +38,7 @@ public:
     QLabel *label;
     QTextEdit *messages;
     QLabel *depthHead_2;
+    QPushButton *pushButton;
     QToolBar *mainToolBar;
     QStatusBar *statusBar;
 
@@ -94,6 +95,11 @@ public:
         depthHead_2->setStyleSheet(QLatin1String("background: rgba(0,204,255,0.1);\n"
 "border-bottom: 1px solid rgba(0,204,255,1);\n"
 "padding-left: 1em;"));
+        pushButton = new QPushButton(centralWidget);
+        pushButton->setObjectName(QStringLiteral("pushButton"));
+        pushButton->setGeometry(QRect(670, 0, 16, 16));
+        pushButton->setStyleSheet(QLatin1String("background: #00ccff;\n"
+"border: 0;"));
         MainWindow->setCentralWidget(centralWidget);
         mainToolBar = new QToolBar(MainWindow);
         mainToolBar->setObjectName(QStringLiteral("mainToolBar"));
@@ -117,6 +123,7 @@ public:
         submit->setText(QApplication::translate("MainWindow", "Start Crawling", Q_NULLPTR));
         label->setText(QApplication::translate("MainWindow", "<html><head/><body><p><span style=\" font-size:26pt; font-weight:600;\">webler</span></p></body></html>", Q_NULLPTR));
         depthHead_2->setText(QApplication::translate("MainWindow", "Logs", Q_NULLPTR));
+        pushButton->setText(QString());
     } // retranslateUi
 
 };

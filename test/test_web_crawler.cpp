@@ -8,11 +8,10 @@ using namespace std;
 
 int counter = 0;
 
-void callback(bool status, string url, vector<string> data) {
+void callback(string url, vector<string> data) {
 
 	cout << endl;
-	if(status) cout << "Received " << (++counter) << endl;
-	else cout << "NO" << endl;
+	cout << "Received " << (++counter) << endl;
 	cout << "URL: " << url << endl;
 	cout << "Data: ";
 	for(auto i: data) {
