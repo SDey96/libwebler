@@ -6,28 +6,28 @@
 #include <cstring>
 #include <thread>
 #include <mutex>
+#include <cmath>
 #include <vector>
 #include <iterator>
 #include <algorithm>
 #include <curl/curl.h>
-#define MAX_NO_OF_THREADS 5
+
+#define MAX_NO_OF_THREADS 10
 using namespace std;
 
 namespace web{
+
   class DownloadFilePartitions
   {
     private:
+      string extension;
+      string oFilePath;
+      string finalUrl;
       char *contentType;
       ofstream *outPipe;
-      CURLcode fileResult;
-      string extension;
-      CURLcode fileSize;
-      double fullFileSize;
-      string oFilePath;
       int fileSizeResult;
-      string finalUrl;
+      double fullFileSize;
       vector<string> fileRanges;
-      mutex mtx;
       string tempName = "tempOutput";
       string tempFileNames[MAX_NO_OF_THREADS];
       ofstream tempOutputFiles[MAX_NO_OF_THREADS];
@@ -35,17 +35,19 @@ namespace web{
 
       auto FileRanges() -> void;
       auto DetermineFileType() -> void;
-      auto CleanUpTempFiles()  -> void;
+      auto DetermineFileExtension()  -> void;
       auto FileSize(const char *url) -> int;
-      auto WriteTemporaryPartitions(int index) -> void;
       auto MergeDownloadedPartitions() -> void;
-      auto ProcessData(char *ptr, size_t size, size_t nmemb, void *userdata) -> size_t;
-      
+      auto getSizeToEnd(ifstream& is) -> streampos;
+      auto WriteTemporaryPartitions(int index) -> void;
+
     public:
       DownloadFilePartitions();
-      auto UserInterface(string url, string outFile) -> void;
+      auto UserInput(string url, string outFile) -> void;
       auto DownloadFile(const char *url, const char *outFile) -> int;
+
   };
+
 }
 
 #endif

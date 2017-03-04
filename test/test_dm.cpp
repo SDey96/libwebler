@@ -8,6 +8,6 @@ int main() {
   string filepath,filename;
   cin>>filename>>filepath;
   filepath = filepath + filename;
-  DFP.UserInterface(url,filepath);
+  DFP.UserInput(url,filepath);
   return 0;
 }
