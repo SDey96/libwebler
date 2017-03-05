@@ -6,7 +6,7 @@
 #include <vector>
 using namespace std;
 
-namespace web {
+namespace webler {
 
 	const int WC_SUCCESS = 0;
 	const int WC_EINVALID = -1;
@@ -106,6 +106,6 @@ namespace web {
 	// to extract href from <a> tags of html
 	vector<string> get_href(string html);
 
-} /*namespace web*/
+} /*namespace webler*/
 
 #endif /*__WEBLER_CRAWLER_HPP__*/

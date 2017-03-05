@@ -8,7 +8,7 @@
 #include <semaphore.h>
 using namespace std;
 
-namespace web {
+namespace webler {
 
 	const int CHAN_SUCCESS = 0;
 	const int CHAN_CLOSED = -1;
@@ -67,17 +67,17 @@ namespace web {
 	}; /*class Channel*/
 
 
-} /*namespace web*/
+} /*namespace webler*/
 
 template <class T>
-web::Channel<T>::Channel() {
+webler::Channel<T>::Channel() {
 	sem_init(&buffer_sem, 0, 0);
 	waiting_length = 0;
 	chan_closed = false;
 }
 
 template <class T>
-int web::Channel<T>::add(const T data) {
+int webler::Channel<T>::add(const T data) {
 
 	close_mutex.lock();
 	if(!chan_closed) {
@@ -87,16 +87,16 @@ int web::Channel<T>::add(const T data) {
 		close_mutex.unlock();
 		
 		sem_post(&buffer_sem);
-		return web::CHAN_SUCCESS;
+		return webler::CHAN_SUCCESS;
 	} else {
 		close_mutex.unlock();
-		return web::CHAN_CLOSED;
+		return webler::CHAN_CLOSED;
 	}
 
 }
 
 template <class T>
-T web::Channel<T>::retrieve(bool *closed) {
+T webler::Channel<T>::retrieve(bool *closed) {
 
 	close_mutex.lock();
 	if(!chan_closed) {
@@ -134,7 +134,7 @@ T web::Channel<T>::retrieve(bool *closed) {
 }
 
 template <class T>
-int web::Channel<T>::close() {
+int webler::Channel<T>::close() {
 
 	close_mutex.lock();
 	if(!chan_closed){
@@ -144,10 +144,10 @@ int web::Channel<T>::close() {
 			sem_post(&buffer_sem);
 		}
 		close_mutex.unlock();
-		return web::CHAN_SUCCESS;
+		return webler::CHAN_SUCCESS;
 	} else {
 		close_mutex.unlock();
-		return web::CHAN_CLOSED;
+		return webler::CHAN_CLOSED;
 	}
 
 }

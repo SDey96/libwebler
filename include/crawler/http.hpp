@@ -4,7 +4,8 @@
 
 #include <string>
 using namespace std;
-namespace web {
+
+namespace webler {
 
 	struct http_response {
 		string html; // response HTML

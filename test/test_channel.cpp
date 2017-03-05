@@ -6,13 +6,13 @@ using namespace std;
 
 #define N 100
 
-void thread_function(int i,web::Channel<int> *chan) {
+void thread_function(int i,webler::Channel<int> *chan) {
 	for(int j=0; j<N; j++) {
 		chan->add(i);
 	}
 }
 
-void thread_function2(int i,web::Channel<int> *chan) {
+void thread_function2(int i,webler::Channel<int> *chan) {
 	if(i==5) {
 		chan->close();
 	}
@@ -24,7 +24,7 @@ void thread_function2(int i,web::Channel<int> *chan) {
 
 int main () {
 
-	web::Channel<int> *chan = new web::Channel<int>;
+	webler::Channel<int> *chan = new webler::Channel<int>;
 
 	int total_threads = 10;
 

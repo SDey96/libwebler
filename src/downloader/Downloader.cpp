@@ -1,27 +1,58 @@
-#include <downloader/dm.hpp>
+#include <downloader/Downloader.hpp>
 #include <iostream>
 #include <fstream>
 #include <string>
 #include <thread>
 #include <mutex>
-#include<cmath>
+#include <cmath>
 #include <vector>
 #include <iterator>
 #include <algorithm>
 #include <curl/curl.h>
+#include <pwd.h>
+#include <unistd.h>
+
+#ifndef MAX_NO_OF_THREADS
 #define MAX_NO_OF_THREADS 10
+#endif
 
 using namespace std;
 
-web::DownloadFilePartitions::DownloadFilePartitions (){           //Constructor for the class.
+string gen_random_string(const int len) {
+  string s = "";
+  static const char alphanum[] =
+      "0123456789"
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz";
+
+  for (int i = 0; i < len; ++i) {
+      s += alphanum[(rand()+clock()) % (sizeof(alphanum) - 1)];
+  }
+
+  return s;
+}
+
+webler::Downloader::Downloader (){           //Constructor for the class.
   fullFileSize = 0.0;
   fileSizeResult = 0;
-  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
-    tempFileNames[i] = tempName + to_string(i+1);                 //Opening MAX_NO_OF_THREADS temporary files.
+  
+  if (getenv("HOME") == NULL) {
+    downloaddir = getpwuid(getuid())->pw_dir;
+  } else {
+    downloaddir = getenv("HOME");
   }
+  downloaddir += "/Downloads";
+
+  tempName = gen_random_string(6);
+
+  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
+    tempFileNames[i] = downloaddir + "/" + tempName + to_string(i+1);                 //Opening MAX_NO_OF_THREADS temporary files.
+  }
+
+
 };
 
-auto web::DownloadFilePartitions::FileSize(const char *fileUrl) -> int {
+auto webler::Downloader::FileSize(const char *fileUrl) -> int {
   CURL *tempCurl = curl_easy_init();                              //Initiate tempCurl to get file size.
   CURLcode tempCode;
   if(tempCurl) {
@@ -41,7 +72,7 @@ auto web::DownloadFilePartitions::FileSize(const char *fileUrl) -> int {
   return -1;
 }
 
-auto web::DownloadFilePartitions::FileRanges() -> void {           //Function to split file into multiple parts.
+auto webler::Downloader::FileRanges() -> void {           //Function to split file into multiple parts.
   int tempVar = fileSizeResult;
   int remainderSize = fileSizeResult%MAX_NO_OF_THREADS;
   string tempString;
@@ -60,7 +91,7 @@ auto web::DownloadFilePartitions::FileRanges() -> void {           //Function to
   }
 }
 
-auto web::DownloadFilePartitions::getSizeToEnd(ifstream& is) -> streampos {
+auto webler::Downloader::getSizeToEnd(ifstream& is) -> streampos {
     auto currentPosition = is.tellg();                               //Function to write into buffer and read from the buffer.
     is.seekg(0, is.end);
     auto length = is.tellg() - currentPosition;
@@ -68,13 +99,13 @@ auto web::DownloadFilePartitions::getSizeToEnd(ifstream& is) -> streampos {
     return length;
 }
 
-auto web::DownloadFilePartitions::MergeDownloadedPartitions() -> void {
+auto webler::Downloader::MergeDownloadedPartitions() -> void {
     ofstream mainFileOutputStream;
     mainFileOutputStream.open(oFilePath.c_str(),ios::binary|ios::out);
     for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                 //We will write data from the temporary files into our main files.
       ifstream tempInputStream;
       tempInputStream.open(tempFileNames[i],ios::binary|ios::in);
-      vector<char> buff(web::DownloadFilePartitions::getSizeToEnd(tempInputStream),0);
+      vector<char> buff(webler::Downloader::getSizeToEnd(tempInputStream),0);
       tempInputStream.read(buff.data(),buff.size());                 //Write into the buff
       mainFileOutputStream.write(buff.data(),buff.size());           //Read from buff and write into main output file.
     }
@@ -93,13 +124,13 @@ int progress_func(void* ptr, double TotalToDownload, double NowDownloaded,double
         return 0;                                                     // Because that would cause a division by zero error.
     }
     double fractiondownloaded = NowDownloaded / TotalToDownload;
-    printf("Download Progress [%3.0f%%]",fractiondownloaded*100);     //Using printf since it is atomic.
-    printf("\r");                                                     // And back to the beginning of the line!
+    printf("Download Progress [%3.0f%%]\r",fractiondownloaded*100);     //Using printf since it is atomic.
+    // printf("\r");                                                     // And back to the beginning of the line!
     fflush(stdout);
     return 0;                                                         // We should return zero for the complete transaciton.
 }
 
-auto web::DownloadFilePartitions::WriteTemporaryPartitions(int index) -> void {
+auto webler::Downloader::WriteTemporaryPartitions(int index) -> void {
   CURL *curl = curl_easy_init();                                      //Initiate curl.
   curl_easy_setopt(curl, CURLOPT_URL,finalUrl.c_str());               //Pass the url to download the file from.
   curl_easy_setopt(curl, CURLOPT_RANGE,fileRanges[index].c_str());    //Set the ranges to download.
@@ -111,13 +142,13 @@ auto web::DownloadFilePartitions::WriteTemporaryPartitions(int index) -> void {
   return;
 }
 
-auto web::DownloadFilePartitions::DownloadFile (const char *url, const char *outFile) -> int {
+auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> int {
   std::ofstream output(outFile, ios::binary);                         //Open the output stream.
   fileSizeResult = FileSize(url);                                     //Determine the size of file.
   FileRanges();                                                       //Split the file into partitions of equal size.
   if (fileSizeResult > 0) {
       for (int i = 0; i < MAX_NO_OF_THREADS; i++) {
-        fileThreadsToDownload[i] = thread(&DownloadFilePartitions::WriteTemporaryPartitions,this,i);
+        fileThreadsToDownload[i] = thread(&Downloader::WriteTemporaryPartitions,this,i);
       }                                                               //Call the function multithreaded.
       for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
         fileThreadsToDownload[i].join();                              //Wait for all the threads to complete executing.
@@ -132,7 +163,7 @@ auto web::DownloadFilePartitions::DownloadFile (const char *url, const char *out
   }
 }
 
-auto web::DownloadFilePartitions::DetermineFileExtension() -> void { //Determine the extension of the downloaded file.
+auto webler::Downloader::DetermineFileExtension() -> void { //Determine the extension of the downloaded file.
    if(extension.find("text") != string::npos){
       extension = ".txt";
    }
@@ -236,21 +267,27 @@ auto web::DownloadFilePartitions::DetermineFileExtension() -> void { //Determine
    rename(oFilePath.c_str(),temp.c_str());                            //Rename the file.
 }
 
-auto web::DownloadFilePartitions::UserInput(string url, string outFile) -> void {
+auto webler::Downloader::download(string url, string outFile) -> bool {
+  
   finalUrl = url;
-  oFilePath = outFile;
-  cout<<"Downloading..."<<endl;
+  if(outFile==""){
+    outFile = gen_random_string(8);
+  }
+  oFilePath = downloaddir + "/" + outFile;
+
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
     tempOutputFiles[i].open(tempFileNames[i]);                        //Open the temp files.
   }
-  int fileResult = DownloadFile(url.c_str(),outFile.c_str());
+  int fileResult = DownloadFile(url.c_str(),oFilePath.c_str());
   if (fileResult ==  0){
         DetermineFileExtension();
-        cout <<"Download successful.\n" << endl;
+        return true;
   }else{
-        cout<<"Error in downloading.\n"<<endl;
+        return false;
   }
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                   //Remove the temporary files.
        remove(tempFileNames[i].c_str());
   }
 }
+
+#undef MAX_NO_OF_THREADS

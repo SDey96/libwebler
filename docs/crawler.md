@@ -16,7 +16,7 @@ Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/d
   * `int start()`
 * `vector<string> get_href(string html)`
 
-### Usage of `WebCrawler`
+### Using of `WebCrawler`
 > Disclaimer: All the link and regex used below is just for demo and does not actually work. Check our tests for a working data.
 
 #### Create WebCrawler object
@@ -125,7 +125,7 @@ for(auto i: all_failed_url) {
     cout << "Failed URL:" << i.url << endl;
 }
 ```
-### Usage of `get_href`
+### Using of `get_href`
 This function is to scrape out all the links from `<a href="link"></a>` tags of html.
 ```
 string html = "here will be my html";

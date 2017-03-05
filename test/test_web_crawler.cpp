@@ -33,7 +33,7 @@ Regex
 <\s*ul\s+[^>]*id\s*=\s*"junkData"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\s*div\s+[^>]*id\s*=\s*"wantedData"[^>]*>([^?]*(?=</div>))</div>[^<]*<\s*ul\s+[^>]*id\s*=\s*"junkData2"[^>]*>[^?]*(?=</ul>)</ul>
 */
 
-	web::WebCrawler test_crawler;
+	webler::WebCrawler test_crawler;
 	string regex1("<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks1\"[^>]*>([^?]*(?=</ul>))</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"unwantedLinks\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks2\"[^>]*>([^?]*(?=</ul>))</ul>");
 	string regex2("<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*div\\s+[^>]*id\\s*=\\s*\"wantedData\"[^>]*>([^?]*(?=</div>))</div>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData2\"[^>]*>[^?]*(?=</ul>)</ul>");
 
@@ -43,17 +43,17 @@ Regex
 		string("http://localhost:3000/first/"),
 		11,
 		re
-	) != web::WC_SUCCESS) {
+	) != webler::WC_SUCCESS) {
 		cout << "Error in setting basedata" << endl;
 		return 0;
 	}
 
-	if(test_crawler.set_concurrency_options(3,5) != web::WC_SUCCESS) {
+	if(test_crawler.set_concurrency_options(3,5) != webler::WC_SUCCESS) {
 		cout << "Error in setting concurrency options" << endl;
 		return 0;
 	}
 
-	if(test_crawler.set_callback(callback) != web::WC_SUCCESS) {
+	if(test_crawler.set_callback(callback) != webler::WC_SUCCESS) {
 		cout << "Error in setting callback" << endl;
 		return 0;
 	}
@@ -63,7 +63,7 @@ Regex
 	test_crawler.start();
     clock_gettime(CLOCK_MONOTONIC,&end_time);
 
-    vector<web::failed_url> fu = test_crawler.get_failed_url();
+    vector<webler::failed_url> fu = test_crawler.get_failed_url();
     for(auto i: fu) {
     	cout << "Failed:: Depth:" << i.depth << ", URL:" << i.url << endl; 
     }

@@ -3,7 +3,7 @@
 using namespace std;
 
 /*######### DepthHandler #########*/
-web::DepthHandler::DepthHandler(int d, string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end,Channel<failed_url>* _failed_urls){
+webler::DepthHandler::DepthHandler(int d, string _regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool _is_end,Channel<failed_url>* _failed_urls){
 
 	regex_str = _regex_str;
 	chan_get = _chan_get;
@@ -14,7 +14,7 @@ web::DepthHandler::DepthHandler(int d, string _regex_str, web_chan_ptr _chan_get
 
 }
 
-void web::DepthHandler::start() {
+void webler::DepthHandler::start() {
 
 	vector<string> channel_urls,extracted_urls;
 
@@ -26,26 +26,26 @@ void web::DepthHandler::start() {
 	smatch html_match;
 
 	// response from GET request
-	web::http_response res;
+	webler::http_response res;
 
 	// HTML after filtering with regex
 	string filtered_html;
 
 	int match_length;
 
-	web::channel_data send_data;
+	webler::channel_data send_data;
 
 	bool closed;
 
 	// getting urls from channel
-	for(web::channel_data it=chan_get->retrieve(&closed); !closed ; it=chan_get->retrieve(&closed)) {
+	for(webler::channel_data it=chan_get->retrieve(&closed); !closed ; it=chan_get->retrieve(&closed)) {
 		// link got from channel
 		channel_urls = it.links;
 		// iterating over the links
 		for(vector<string>::iterator url=channel_urls.begin(); url!=channel_urls.end(); ++url ) {
 			
 			// GET requests to the link
-			res = web::http_get(*url);
+			res = webler::http_get(*url);
 
 			if(res.success) { // GET request was successful
 				// filtering the HTML
@@ -81,7 +81,7 @@ void web::DepthHandler::start() {
 				}
 
 			} else {
-				chan_failed_urls->add(web::failed_url(*url,depth));
+				chan_failed_urls->add(webler::failed_url(*url,depth));
 			}
 
 		}

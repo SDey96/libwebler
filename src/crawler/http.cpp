@@ -16,7 +16,7 @@ size_t curl_writeback(void *contents, size_t size, size_t nmemb, string *s) {
 	return size*nmemb;
 }
 
-web::http_response web::http_get(string url) {
+webler::http_response webler::http_get(string url) {
 	http_response response;
 	try {
 		CURL *curl;

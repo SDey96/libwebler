@@ -51,7 +51,7 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo "########## Usage ##########"
 	@echo "Include:"
 	@echo "#include <webler/WebCrawler.hpp>"
-	@echo "#include <webler/dm.hpp>"
+	@echo "#include <webler/Downloader.hpp>"
 	@echo ""
 	@echo "Compile:"
 	@echo "To link webler library to your program, use the follow flags"

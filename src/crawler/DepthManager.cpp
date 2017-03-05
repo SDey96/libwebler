@@ -3,7 +3,7 @@
 using namespace std;
 
 
-void web::__DepthPoolThreadFunction(
+void webler::__DepthPoolThreadFunction(
 	string regex_str,
 	web_chan_ptr chan_get,
 	web_chan_ptr chan_put, 
@@ -12,7 +12,7 @@ void web::__DepthPoolThreadFunction(
 	bool is_end,
 	Channel<failed_url>* chan_failed_url ) {
 
-	web::DepthHandler(
+	webler::DepthHandler(
 		rpd_id,
 		regex_str,
 		chan_get,
@@ -27,7 +27,7 @@ void web::__DepthPoolThreadFunction(
 }
 
 /*######### DepthPoolManager #########*/
-web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, Channel<failed_url>* _failed_urls) {
+webler::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, Channel<failed_url>* _failed_urls) {
 
 	max_pool_size = _max_pool_size;
 	thread_count = _thread_count;
@@ -60,9 +60,9 @@ web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, C
 						if(wait_pool.size()>0) { // if wait pool is waiting to run
 
 							// creating running pool data from waiting pool
-							web::wait_pool_data wpd = this->wait_pool.front();
+							webler::wait_pool_data wpd = this->wait_pool.front();
 
-							web::running_pool_data rpd;
+							webler::running_pool_data rpd;
 							this->rp_count++;
 							rpd._id = this->rp_count;
 							rpd.chan_put = wpd.chan_put;
@@ -71,7 +71,7 @@ web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, C
 							// creating threads for new entry in running pool
 							for(int i=0; i<this->thread_count; i++) {
 								rpd.threads[i]._t = thread(
-									web::__DepthPoolThreadFunction,
+									webler::__DepthPoolThreadFunction,
 									wpd.regex_str,
 									wpd.chan_get,
 									wpd.chan_put,
@@ -101,13 +101,13 @@ web::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count, C
 
 }
 
-web::DepthPoolManager::~DepthPoolManager() {
+webler::DepthPoolManager::~DepthPoolManager() {
 	if(end_callback){
 		delete end_callback;
 	}
 }
 
-bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end) {
+bool webler::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end) {
 	if (end_added) return false;
 	
 	pool_mutex.lock();
@@ -117,7 +117,7 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 		// add in running queue (running pool is not full)
 
 		// data to put in running pool
-		web::running_pool_data rpd;
+		webler::running_pool_data rpd;
 		rp_count++;
 		rpd._id = rp_count;
 		rpd.chan_put = _chan_put;
@@ -126,7 +126,7 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 		// creating threads in running pool
 		for(int i=0; i<thread_count; i++) {
 			rpd.threads[i]._t = thread(
-				web::__DepthPoolThreadFunction,
+				webler::__DepthPoolThreadFunction,
 				regex_str,
 				_chan_get,
 				_chan_put,
@@ -144,7 +144,7 @@ bool web::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, 
 
 	} else {
 		// add in waiting pool (running pool is full)
-		wait_pool.push_back(web::wait_pool_data(regex_str,_chan_get,_chan_put,is_end));
+		wait_pool.push_back(webler::wait_pool_data(regex_str,_chan_get,_chan_put,is_end));
 		pool_mutex.unlock();
 	}
 

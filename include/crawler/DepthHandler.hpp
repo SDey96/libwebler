@@ -14,15 +14,15 @@ using namespace std;
 
 #ifndef __WEBLER_CHANNEL_PREPROC__
 #define __WEBLER_CHANNEL_PREPROC__
-#define web_chan_ptr web::Channel<channel_data>*
-#define web_chan web::Channel<channel_data>
+#define web_chan_ptr webler::Channel<channel_data>*
+#define web_chan webler::Channel<channel_data>
 #endif /*__WEBLER_CHANNEL_PREPROC__*/
 
-namespace web {
+namespace webler {
 
 	#ifndef __WEBLER_CHANNEL_DATA__
 	#define __WEBLER_CHANNEL_DATA__
-	// data type which will be passed through web::Channel
+	// data type which will be passed through webler::Channel
 	struct channel_data {
 		vector<string> links;
 	};
@@ -78,6 +78,6 @@ namespace web {
 	}; /*class DepthHandler*/
 
 
-} /*namespace web*/
+} /*namespace webler*/
 
 #endif /*__WEBLER_DEPTH_HANDLER_HPP__*/
