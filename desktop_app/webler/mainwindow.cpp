@@ -73,6 +73,8 @@ MainWindow::MainWindow(QWidget *parent) :
         homedir = getenv("HOME");
     }
 
+    QDir().mkdir((homedir+"/webler").c_str());
+
 }
 
 MainWindow::~MainWindow() {
@@ -86,7 +88,7 @@ void MainWindow::on_lineEdit_textEdited(const QString &arg1) {
 }
 
 void MainWindow::update_message(string msg) {
-    current_message = string("[") + to_string(++message_count) + string("] ") + msg + string("\n") + current_message;
+    current_message = "[" + to_string(++message_count) + "] " + msg + "\n" + current_message;
     ui->messages->document()->setPlainText(current_message.c_str());
 }
 
@@ -94,17 +96,17 @@ void MainWindow::on_getDepth_clicked() {
     _depth = QInputDialog::getInt(this,tr("Enter Depth"),tr("Depth"));
     if(_depth > 0) {
         ui->depthValue->setText(QString::number(_depth));
-        update_message(string("Depth set to ") + to_string(_depth));
+        update_message("Depth set to " + to_string(_depth));
         _regexString.clear();
         update_message("Regex vector cleared");
         string labels;
         for(int i=0; i<_depth; i++) {
-            labels = string("Enter regex for depth ") + to_string(i+1) + string(":");
+            labels = "Enter regex for depth " + to_string(i+1) + "/" + to_string(_depth) + ":";
             _regexString.push_back( QInputDialog::getText(this, tr("Regex"),tr(labels.c_str()), QLineEdit::Normal).toUtf8().constData() );
-            update_message(string("Regex ") + to_string(i+1) + string(" set to ") + _regexString.back());
+            update_message("Regex " + to_string(i+1) + " set to " + _regexString.back());
         }
     } else {
-        update_message(string("Invalid depth ") + to_string(_depth));
+        update_message("Invalid depth " + to_string(_depth));
         _depth = 0;
         ui->depthValue->setText(QString::number(_depth));
     }
@@ -140,7 +142,7 @@ void MainWindow::on_submit_clicked() {
     // update_message("Crawler started");
     crawler_started = true;
     update_sessionid();
-    web::WebCrawler _crawler;
+    webler::WebCrawler _crawler;
 
     // string regex1("<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks1\"[^>]*>([^?]*(?=</ul>))</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"unwantedLinks\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"wantedLinks2\"[^>]*>([^?]*(?=</ul>))</ul>");
     // string regex2("<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData\"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\\s*div\\s+[^>]*id\\s*=\\s*\"wantedData\"[^>]*>([^?]*(?=</div>))</div>[^<]*<\\s*ul\\s+[^>]*id\\s*=\\s*\"junkData2\"[^>]*>[^?]*(?=</ul>)</ul>");
@@ -151,15 +153,15 @@ void MainWindow::on_submit_clicked() {
         _depth,
        _regexString
        // re
-    ) != web::WC_SUCCESS) {
+    ) != webler::WC_SUCCESS) {
         update_message("Error in setting basedata");
     }
 
-    if(_crawler.set_concurrency_options(3,5) != web::WC_SUCCESS) {
+    if(_crawler.set_concurrency_options(3,5) != webler::WC_SUCCESS) {
         update_message("Error in setting concurrency options");
     }
 
-    if(_crawler.set_callback(callback) != web::WC_SUCCESS) {
+    if(_crawler.set_callback(callback) != webler::WC_SUCCESS) {
         update_message("Error in setting callback");
     }
 
@@ -169,7 +171,7 @@ void MainWindow::on_submit_clicked() {
     string faildir = weblerdir + "/failed_url.txt";
     outfile.open(faildir.c_str());
 
-    vector<web::failed_url> fu = _crawler.get_failed_url();
+    vector<webler::failed_url> fu = _crawler.get_failed_url();
     for(auto i: fu) {
         outfile << "Depth:" << i.depth << "\nURL:" << i.url << endl << endl;
     }
@@ -179,6 +181,6 @@ void MainWindow::on_submit_clicked() {
     crawler_started = false;
     ui->submit->setEnabled(true);
 
-    update_message("Crawler finished");
+    update_message("Crawler finished. ID: " + sessionid);
 
 }

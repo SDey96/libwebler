@@ -24,8 +24,10 @@ void callback(string url, vector<string> data) {
 int main () {
 
 /*
-Regex
+URL:
+http://localhost:3000/first/
 
+Regex
 1:
 <\s*ul\s+[^>]*id\s*=\s*"wantedLinks1"[^>]*>([^?]*(?=</ul>))</ul>[^<]*<\s*ul\s+[^>]*id\s*=\s*"unwantedLinks"[^>]*>[^?]*(?=</ul>)</ul>[^<]*<\s*ul\s+[^>]*id\s*=\s*"wantedLinks2"[^>]*>([^?]*(?=</ul>))</ul>
 

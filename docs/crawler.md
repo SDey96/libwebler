@@ -133,3 +133,5 @@ string html = "here will be my html";
 // vector containing all the links
 vector<string> hrefs = get_href(html);
 ```
+
+Check how to use WebCrawler in desktop app [here](https://github.com/thecodesome/libwebler/blob/master/docs/desktop_app.md)
