@@ -22,7 +22,7 @@ Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/d
 #### Create WebCrawler object
 
 ```
-web::WebCrawler my_crawler;
+webler::WebCrawler my_crawler;
 ```
 
 #### Gather your depth and regular expression strings
@@ -51,11 +51,11 @@ int response_code = my_crawler.set_basedata(
     my_regex // 3 regex
 );
 
-if(response_code == web::WC_SUCCESS) {
+if(response_code == webler::WC_SUCCESS) {
     cout << "It was a success!" << endl;
-} else if (response_code == web::WC_EINPROGRESS) {
+} else if (response_code == webler::WC_EINPROGRESS) {
     cout << "My crawler has started crawling, so I cant alter base data." << endl;
-} else if (response_code == web::WC_EINVALID) {
+} else if (response_code == webler::WC_EINVALID) {
     cout << "Some problem in depth or number of regex." << endl;
 }
 ```
@@ -67,11 +67,11 @@ To set number of depths crawling concurrently and number of threads crawling in 
 ```
 response_code = my_crawler.set_concurrency_options(3,2);
 
-if(response_code == web::WC_SUCCESS) {
+if(response_code == webler::WC_SUCCESS) {
     cout << "It was a success!" << endl;
-} else if (response_code == web::WC_EINPROGRESS) {
+} else if (response_code == webler::WC_EINPROGRESS) {
     cout << "My crawler has started crawling." << endl;
-} else if (response_code == web::WC_EINVALID) {
+} else if (response_code == webler::WC_EINVALID) {
     cout << "Numbers are not >0" << endl;
 }
 ```
@@ -95,9 +95,9 @@ void callback(string url, vector<string> data) {
 
 // inside main
 response_code = my_crawler.set_callback(callback);
-if(response_code == web::WC_SUCCESS) {
+if(response_code == webler::WC_SUCCESS) {
     cout << "It was a success!" << endl;
-} else if (response_code == web::WC_EINPROGRESS) {
+} else if (response_code == webler::WC_EINPROGRESS) {
     cout << "My crawler has started crawling." << endl;
 }
 ```
@@ -105,13 +105,13 @@ if(response_code == web::WC_SUCCESS) {
 ```
 response_code = my_crawler.start();
 
-if(response_code == web::WC_SUCCESS) {
+if(response_code == webler::WC_SUCCESS) {
     cout << "Crawler finished successfully!" << endl;
-} else if (response_code == web::WC_EINPROGRESS) {
+} else if (response_code == webler::WC_EINPROGRESS) {
     cout << "My crawler is already in progress." << endl;
-} else if (response_code == web::WC_EINVALID) {
+} else if (response_code == webler::WC_EINVALID) {
     cout << "Basedata is not set." << endl;
-} else if (response_code == web::WC_EUNKNOWN) {
+} else if (response_code == webler::WC_EUNKNOWN) {
     cout << "Unknown error occured." << endl;
 }
 ```
@@ -119,7 +119,7 @@ if(response_code == web::WC_SUCCESS) {
 #### Collecting failed URL
 Use this after crawling is finished
 ```
-vector<web::failed_url> all_failed_url = my_crawler.get_failed_url();
+vector<webler::failed_url> all_failed_url = my_crawler.get_failed_url();
 for(auto i: all_failed_url) {
     cout << "Depth at which it failed:" << i.depth << endl;
     cout << "Failed URL:" << i.url << endl;
