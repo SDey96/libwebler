@@ -152,7 +152,8 @@ clean:
 	@echo "Cleaning $(BIN_DIR)/* ..."
 	@rm -rf $(BIN_DIR)/*
 
-tt: reinstall test
+app:
+	cp desktop_app/build-webler-Desktop_Qt_5_8_0_GCC_64bit-Debug/webler desktop_app/webler/webler
 
 
 .PHONY: clean install uninstall reinstall test test_channel test_http test_web_crawler place_headers build_msg

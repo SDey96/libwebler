@@ -65,7 +65,7 @@ border: 0;</string>
      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <property name="toolTip">
@@ -113,7 +113,7 @@ padding-left: 1em;</string>
        <rect>
         <x>20</x>
         <y>110</y>
-        <width>681</width>
+        <width>191</width>
         <height>31</height>
        </rect>
       </property>
@@ -123,7 +123,7 @@ border-bottom: 1px solid rgba(0,204,255,1);
 padding-left: 1em;</string>
       </property>
       <property name="text">
-       <string>Depth</string>
+       <string>Depth &amp; Regex</string>
       </property>
      </widget>
      <widget class="QLabel" name="depthValue">
@@ -131,7 +131,7 @@ padding-left: 1em;</string>
        <rect>
         <x>30</x>
         <y>150</y>
-        <width>101</width>
+        <width>51</width>
         <height>31</height>
        </rect>
       </property>
@@ -147,14 +147,14 @@ border: 1px solid rgba(0,0,0,0.2);</string>
      <widget class="QPushButton" name="getDepth">
       <property name="geometry">
        <rect>
-        <x>150</x>
+        <x>90</x>
         <y>150</y>
         <width>111</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>Enter Depth</string>
+       <string>Enter Data</string>
       </property>
      </widget>
      <widget class="QLabel" name="depthHead_2">
@@ -202,6 +202,82 @@ padding-left: 1em;</string>
       </property>
       <property name="styleSheet">
        <string notr="true">border: 1px solid rgba(0,0,0,0.2);</string>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="depthBox">
+      <property name="geometry">
+       <rect>
+        <x>240</x>
+        <y>150</y>
+        <width>51</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>3</number>
+      </property>
+     </widget>
+     <widget class="QSpinBox" name="threadBox">
+      <property name="geometry">
+       <rect>
+        <x>450</x>
+        <y>150</y>
+        <width>51</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="minimum">
+       <number>1</number>
+      </property>
+      <property name="value">
+       <number>5</number>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_2">
+      <property name="geometry">
+       <rect>
+        <x>300</x>
+        <y>156</y>
+        <width>121</width>
+        <height>21</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Depths in parallel</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="label_3">
+      <property name="geometry">
+       <rect>
+        <x>510</x>
+        <y>150</y>
+        <width>161</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>Threads in each depth</string>
+      </property>
+     </widget>
+     <widget class="QLabel" name="depthHead_3">
+      <property name="geometry">
+       <rect>
+        <x>230</x>
+        <y>110</y>
+        <width>471</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">background: rgba(0,204,255,0.1);
+border-bottom: 1px solid rgba(0,204,255,1);
+padding-left: 1em;</string>
+      </property>
+      <property name="text">
+       <string>Concurrency Settings</string>
       </property>
      </widget>
     </widget>
