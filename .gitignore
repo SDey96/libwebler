@@ -31,3 +31,7 @@
 build/*
 bin/*
 input.txt
+
+*.pro.user*
+
+desktop_app/build-webler-Desktop_Qt_5_8_0_GCC_64bit-Debug/*

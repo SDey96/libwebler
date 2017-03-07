@@ -40,7 +40,7 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@ar -cvq $(ARCHIVE_DIR)/$(LIB_NAME).a $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
 	@printf "Installing desktop app ..."
-	@cp desktop_app/build/webler /usr/local/bin/webler
+	@cp desktop_app/webler/webler /usr/local/bin/webler
 	@chmod +x /usr/local/bin/webler
 	@chown root: /usr/local/bin/webler
 	@chmod 755 /usr/local/bin/webler
