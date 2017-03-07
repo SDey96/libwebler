@@ -39,18 +39,18 @@ namespace webler {
       thread fileThreadsToDownload[MAX_NO_OF_THREADS];
       string downloaddir;
 
-      auto FileRanges() -> void;
-      auto DetermineFileType() -> void;
-      auto DetermineFileExtension()  -> void;
-      auto FileSize(const char *url) -> int;
-      auto MergeDownloadedPartitions() -> void;
-      auto getSizeToEnd(ifstream& is) -> streampos;
-      auto WriteTemporaryPartitions(int index) -> void;
-      auto DownloadFile(const char *url, const char *outFile) -> int;
+      auto FileRanges() -> void;                                                //Function to calculate the ranges of each file partition.
+      auto getDownloadProgress() ->void;                                        //Function to calculate the total download progress.
+      auto DetermineFileExtension()  -> void;                                   //Function to determine the extension of the file.
+      auto FileSize(const char *url) -> int;                                    //Function to determine the file size.
+      auto MergeDownloadedPartitions() -> void;                                 //Function to merge all the downlaoded parts.
+      auto getSizeToEnd(ifstream& is) -> streampos;                             //Function to write into the buffer and then read from the buffer.
+      auto WriteTemporaryPartitions(int index) -> void;                         //Function to write into the temporary partition.
+      auto DownloadFile(const char *url, const char *outFile) -> int;           //Function to initiate the download of the file.
 
     public:
-      Downloader();
-      auto download(string url, string outFile="") -> bool;
+      Downloader();                                                             //Constructor for the class.
+      auto download(string url, string outFile="") -> bool;                     //Functon to take the user-input,
 
   };
 
