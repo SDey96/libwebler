@@ -7,6 +7,7 @@
 #include <QString>
 #include <QDir>
 #include <webler/WebCrawler.hpp>
+#include <webler/Downloader.hpp>
 #include <fstream>
 #include <ctime>
 #include <unistd.h>
@@ -15,20 +16,9 @@
 #include <ctime>
 using namespace std;
 
+Ui::MainWindow *global_ui;
 // home directory of the system
 string homedir = "";
-
-/* Web Crawler */
-
-// true if the crawler has started
-bool crawler_started = false;
-
-// total logs in web crawler
-int web_crawler_log_count = 0;
-
-// While in progress
-// Number of callbacks from web crawler
-int counter = 0;
 
 // Main webler directory for web crawler
 string weblerdir;
@@ -36,7 +26,54 @@ string weblerdir;
 // Current web crawler ID (folder name to store data)
 string sessionid;
 
-/* [end] Web Crawler */
+
+// Window constructor
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow(parent),
+    ui(new Ui::MainWindow)
+{
+    ui->setupUi(this);
+    ui->messages->setReadOnly(true);
+    global_ui = ui;
+    
+    web_crawler_logs = "";
+    downloader_logs = "";
+    web_crawler_log_count = 0;
+    downloader_log_count = 0;
+    _baseURL = "";
+    _depth = 0;
+
+    _download_url = "";
+    _download_file_name = "";
+
+    // getting the home directiry
+    if (getenv("HOME") == NULL) {
+        homedir = getpwuid(getuid())->pw_dir;
+    } else {
+        homedir = getenv("HOME");
+    }
+
+    QDir().mkdir((homedir+"/webler").c_str());
+
+}
+
+// Window destructor
+MainWindow::~MainWindow() {
+    delete ui;
+}
+
+void MainWindow::on_pushButton_clicked() {}
+
+/*==========================================================*/
+/*=                     Web Crawler                        =*/
+/*==========================================================*/
+
+// true if the crawler has started
+bool crawler_started = false;
+
+// While in progress
+// Number of callbacks from web crawler
+int counter = 0;
 
 // to update session id for new web crawler session
 void update_sessionid() {
@@ -80,43 +117,13 @@ void callback(string url, vector<string> data) {
 
 }
 
-// Window constructor
-MainWindow::MainWindow(QWidget *parent) :
-    QMainWindow(parent),
-    ui(new Ui::MainWindow)
-{
-    ui->setupUi(this);
-    ui->messages->setReadOnly(true);
-    
-    web_crawler_logs = "";
-    _baseURL = "";
-    _depth = 0;
-
-    // getting the home directiry
-    if (getenv("HOME") == NULL) {
-        homedir = getpwuid(getuid())->pw_dir;
-    } else {
-        homedir = getenv("HOME");
-    }
-
-    QDir().mkdir((homedir+"/webler").c_str());
-
-}
-
-// Window destructor
-MainWindow::~MainWindow() {
-    delete ui;
-}
-
-void MainWindow::on_pushButton_clicked() {}
-
 // updating Base URL
 void MainWindow::on_lineEdit_textEdited(const QString &arg1) {
     _baseURL = arg1.toUtf8().constData();
 }
 
 // to update the logs with new message
-void MainWindow::update_message(string msg) {
+void MainWindow::update_crawler_logs(string msg) {
     // adding new msg to current msg
     web_crawler_logs = "[" + to_string(++web_crawler_log_count) + "] " + msg + "\n" + web_crawler_logs;
     // updating logs in UI
@@ -133,9 +140,9 @@ void MainWindow::on_getDepth_clicked() {
         // valid depth
 
         ui->depthValue->setText(QString::number(_depth));
-        update_message("Depth set to " + to_string(_depth));
+        update_crawler_logs("Depth set to " + to_string(_depth));
         _regexString.clear();
-        update_message("Regex vector cleared");
+        update_crawler_logs("Regex vector cleared");
 
         // getting regexes
         for(int i=0; i<_depth; i++) {
@@ -143,12 +150,12 @@ void MainWindow::on_getDepth_clicked() {
                 tr("Regex"),
                 tr(("Enter regex for depth " + to_string(i+1) + "/" + to_string(_depth) + ":").c_str()), 
                 QLineEdit::Normal).toUtf8().constData() );
-            update_message("Regex " + to_string(i+1) + " set to " + _regexString.back());
+            update_crawler_logs("Regex " + to_string(i+1) + " set to " + _regexString.back());
         }
 
     } else {
         // Invalid depth
-        update_message("Invalid depth " + to_string(_depth));
+        update_crawler_logs("Invalid depth " + to_string(_depth));
         _depth = 0;
         ui->depthValue->setText(QString::number(_depth));
     }
@@ -161,22 +168,22 @@ void MainWindow::on_submit_clicked() {
     counter = 0;
 
     if(crawler_started){
-        update_message("Crawling is in progress");
+        update_crawler_logs("Crawling is in progress");
         return;
     }
 
     if(_baseURL == "") {
-        update_message("Error: Invalid base URL");
+        update_crawler_logs("Error: Invalid base URL");
         return;
     }
 
     if(_depth <= 0) {
-        update_message("Error: Invalid depth");
+        update_crawler_logs("Error: Invalid depth");
         return;
     }
 
     if(_depth != _regexString.size()) {
-        update_message("Error: Invalid number of regex");
+        update_crawler_logs("Error: Invalid number of regex");
         return;
     }
 
@@ -193,7 +200,7 @@ void MainWindow::on_submit_clicked() {
        _regexString
        // re
     ) != webler::WC_SUCCESS) {
-        update_message("Error in setting basedata");
+        update_crawler_logs("Error in setting basedata");
     }
 
     // setting concurrency options
@@ -201,12 +208,12 @@ void MainWindow::on_submit_clicked() {
         ui->depthBox->value(),
         ui->threadBox->value()
     ) != webler::WC_SUCCESS) {
-        update_message("Error in setting concurrency options");
+        update_crawler_logs("Error in setting concurrency options");
     }
 
     // setting callback
     if(_crawler.set_callback(callback) != webler::WC_SUCCESS) {
-        update_message("Error in setting callback");
+        update_crawler_logs("Error in setting callback");
     }
 
     // starting the crawler
@@ -230,6 +237,77 @@ void MainWindow::on_submit_clicked() {
     ui->submit->setEnabled(true);
 
     cout << sessionid << " finished in " << end_time.tv_sec - start_time.tv_sec + (end_time.tv_nsec - start_time.tv_nsec)/1e09 << "seconds" << endl;
-    update_message("Crawler finished. ID: " + sessionid);
+    update_crawler_logs("Crawler finished. ID: " + sessionid);
 
+}
+
+
+
+
+/*==========================================================*/
+/*=                      Downloader                        =*/
+/*==========================================================*/
+// true if the downloader has started
+bool downloader_started = false;
+
+// to update the logs with new message
+void MainWindow::update_downloader_logs(string msg) {
+    // adding new msg to current msg
+    downloader_logs = "[" + to_string(++downloader_log_count) + "] " + msg + "\n" + downloader_logs;
+    // updating logs in UI
+    ui->messages_2->document()->setPlainText(downloader_logs.c_str());
+}
+
+// updating download URL
+void MainWindow::on_lineEdit_2_textEdited(const QString &arg1) {
+    _download_url = arg1.toUtf8().constData();
+}
+
+// updating file name
+void MainWindow::on_lineEdit_3_textEdited(const QString &arg1) {
+    _download_file_name = arg1.toUtf8().constData();
+}
+
+void progressCallback(double percentage) {
+    global_ui->progressBar->setValue((int)percentage);
+}
+
+// start downloading
+void MainWindow::on_submit_2_clicked() {
+    update_downloader_logs("Preparing to download.");
+    if(_download_url == ""){
+        update_downloader_logs("Terminating.");
+        update_downloader_logs("Enter URL.");
+        return;
+    }
+    if(downloader_started){
+        update_downloader_logs("Already Downloading.");
+        return;
+    }
+    
+    downloader_started = true;
+    global_ui->progressBar->setValue(0);
+    
+    ui->submit_2->setEnabled(false);
+    
+    update_downloader_logs("Downloading started.");
+    webler::Downloader _downloader;
+    _downloader.SetProgressCallback(progressCallback);
+    if(_download_file_name == "") {
+        if(_downloader.download(_download_url)) {
+            update_downloader_logs("Downloading finished.");
+        } else {
+            update_downloader_logs("Downloading failed.");
+        }
+    } else {
+        if(_downloader.download(_download_url,_download_file_name)){
+            update_downloader_logs("Downloading finished.");
+        } else {
+            update_downloader_logs("Downloading failed.");
+        }
+    }
+
+    downloader_started = false;
+
+    ui->submit_2->setEnabled(true);
 }

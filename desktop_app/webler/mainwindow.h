@@ -17,6 +17,7 @@ public:
     ~MainWindow();
 
 private slots:
+    /* Web Crawler */
     // When base URL is updated
     void on_lineEdit_textEdited(const QString &arg1);
 
@@ -27,13 +28,33 @@ private slots:
 
     // When Start Crawling button is clicked
     void on_submit_clicked();
+    
+    // to update crawler logs
+    void update_crawler_logs(string);
+    
+    /* Downloader */
+    // When download URL is updated
+    void on_lineEdit_2_textEdited(const QString &arg1);
+    
+    // When download file name is updated
+    void on_lineEdit_3_textEdited(const QString &arg1);
+    
+    // When Start Downloading button is clicked
+    void on_submit_2_clicked();
 
+    // to update downloader logs
+    void update_downloader_logs(string);
 
 private:
     Ui::MainWindow *ui;
 
-    // to store the logs of web crawler
+    // to store the logs
     string web_crawler_logs;
+    string downloader_logs;
+
+    // to store log counts
+    int web_crawler_log_count;
+    int downloader_log_count;
 
     // to store the base URL
     string _baseURL;
@@ -43,8 +64,14 @@ private:
     
     // to store all the regex
     vector<string> _regexString;
+
+    // download file URL
+    string _download_url;
+
+    // downloaded file name
+    string _download_file_name;
     
-    void update_message(string);
+
 };
 
 #endif // MAINWINDOW_H

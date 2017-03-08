@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <curl/curl.h>
 #include <pwd.h>
+#include <ctime>
 #include <unistd.h>
 
 #ifndef MAX_NO_OF_THREADS
@@ -35,6 +36,7 @@ string gen_random_string(const int len) {
 webler::Downloader::Downloader (){                                              //Constructor for the class.
   fullFileSize = 0.0;
   fileSizeResult = 0;
+  progressCallback = NULL;
 
   if (getenv("HOME") == NULL) {
     downloaddir = getpwuid(getuid())->pw_dir;
@@ -134,7 +136,7 @@ auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> 
   fileSizeResult = FileSize(url);                                               //Determine the size of file.
   FileRanges();                                                                 //Split the file into partitions of equal size.
   if (fileSizeResult > 0) {
-      thread progressThread = thread(&Downloader::getDownloadProgress,this);    //Thrad to calculate the progress.
+      thread progressThread = thread(&Downloader::getDownloadProgress,this);    //Thread to calculate the progress.
       for (int i = 0; i < MAX_NO_OF_THREADS; i++) {
         fileThreadsToDownload[i] = thread(&Downloader::WriteTemporaryPartitions,this,i);
       }                                                                         //Call the function multithreaded.
@@ -152,20 +154,29 @@ auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> 
   }
 }
 
+auto webler::Downloader::SetProgressCallback(void (*callback)(double)) -> void {
+
+  progressCallback = callback;
+
+}
+
+
 auto webler::Downloader::getDownloadProgress() -> void {
-    ifstream *files = new ifstream[MAX_NO_OF_THREADS];
-    int indFileSize = 0;
-    double percentComplete = 0;
-    while(indFileSize!=fileSizeResult){
-      indFileSize = 0;
-      for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                          //Calculate the size of all the files.
-          ifstream file(tempFileNames[i].c_str(),ifstream::binary|ifstream::ate);
-          indFileSize += file.tellg();
-      }
-      percentComplete = ((double)indFileSize/(double)fileSizeResult)*100;
-      printf("Download Progress : %.3f",percentComplete);
-      printf("\r");
-   }
+    if(progressCallback) {
+      ifstream *files = new ifstream[MAX_NO_OF_THREADS];
+      int indFileSize = 0;
+      double percentComplete = 0;
+      while(indFileSize!=fileSizeResult){
+        indFileSize = 0;
+        for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                          //Calculate the size of all the files.
+            ifstream file(tempFileNames[i].c_str(),ifstream::binary|ifstream::ate);
+            indFileSize += file.tellg();
+        }
+        percentComplete = ((double)indFileSize/(double)fileSizeResult)*100;
+        progressCallback(percentComplete);
+        usleep(400000);
+     }
+    }
 }
 
 auto webler::Downloader::DetermineFileExtension() -> void {                     //Determine the extension of the downloaded file.
@@ -285,14 +296,14 @@ auto webler::Downloader::download(string url, string outFile) -> bool {
   }
 
   int fileResult = DownloadFile(url.c_str(),oFilePath.c_str());
+  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                              //Remove the temporary files.
+       remove(tempFileNames[i].c_str());
+  }
   if (fileResult ==  0){
         DetermineFileExtension();
         return true;
   }else{
         return false;
-  }
-  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                              //Remove the temporary files.
-       remove(tempFileNames[i].c_str());
   }
 }
 

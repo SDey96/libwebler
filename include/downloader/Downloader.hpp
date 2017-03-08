@@ -38,6 +38,7 @@ namespace webler {
       ofstream tempOutputFiles[MAX_NO_OF_THREADS];
       thread fileThreadsToDownload[MAX_NO_OF_THREADS];
       string downloaddir;
+      void (*progressCallback)(double);
 
       auto FileRanges() -> void;                                                //Function to calculate the ranges of each file partition.
       auto getDownloadProgress() ->void;                                        //Function to calculate the total download progress.
@@ -51,6 +52,7 @@ namespace webler {
     public:
       Downloader();                                                             //Constructor for the class.
       auto download(string url, string outFile="") -> bool;                     //Functon to take the user-input,
+      auto SetProgressCallback(void (*callback)(double)) -> void;                       //Function to set the progress callback
 
   };
 
