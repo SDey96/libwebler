@@ -19,59 +19,56 @@
 
 using namespace std;
 
-string gen_random_string(const int len) {
-  string s = "";
-  static const char alphanum[] =
-      "0123456789"
-      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-      "abcdefghijklmnopqrstuvwxyz";
-
-  for (int i = 0; i < len; ++i) {
-      s += alphanum[(rand()+clock()) % (sizeof(alphanum) - 1)];
-  }
-
-  return s;
-}
-
 webler::Downloader::Downloader (){                                              //Constructor for the class.
   fullFileSize = 0.0;
   fileSizeResult = 0;
   progressCallback = NULL;
-
   if (getenv("HOME") == NULL) {
     downloaddir = getpwuid(getuid())->pw_dir;
   } else {
     downloaddir = getenv("HOME");
   }
   downloaddir += "/Downloads";
-
-  tempName = gen_random_string(6);
-
+  tempName = GetRandomString(6);
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
     tempFileNames[i] = downloaddir + "/" + tempName + to_string(i+1);           //Opening MAX_NO_OF_THREADS temporary files.
   }
-
-
 };
 
+auto webler::Downloader::GetRandomString(const int len) -> string {
+  string s = "";
+  static const char alphanum[] =
+      "0123456789"
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      "abcdefghijklmnopqrstuvwxyz";
+  for (int i = 0; i < len; ++i) {
+      s += alphanum[(rand()+clock()) % (sizeof(alphanum) - 1)];
+  }
+  return s;
+}
+
+auto webler::Downloader::SetProgressCallback(void (*callback)(double)) -> void {
+  progressCallback = callback;                                                  //Set the callback
+}
+
 auto webler::Downloader::FileSize(const char *fileUrl) -> int {
-  CURL *tempCurl = curl_easy_init();                                            //Initiate tempCurl to get file size.
-  CURLcode tempCode;
+  CURL *tempCurl = curl_easy_init();                                            //Initiate curl handle to get file size.
+  CURLcode tempCode;                                                            //CURLcode for analyzong the result.
   if(tempCurl) {
-    curl_easy_setopt(tempCurl, CURLOPT_URL, fileUrl);                           //Send the url request
-    curl_easy_setopt(tempCurl, CURLOPT_NOBODY, 1000L);
+    curl_easy_setopt(tempCurl, CURLOPT_URL, fileUrl);                           //Send the url request.
+    curl_easy_setopt(tempCurl, CURLOPT_NOBODY, 1000L);                          //CURLOPT_NOBODY for downlaod request without the body.
     tempCode = curl_easy_perform(tempCurl);
     if(CURLE_OK == tempCode) {
       tempCode = curl_easy_getinfo(tempCurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD,&fullFileSize);
       if(CURLE_OK == tempCode && fullFileSize > 0.0){                           //Get the file type and download.
         tempCode = curl_easy_getinfo(tempCurl, CURLINFO_CONTENT_TYPE, &contentType);
-        extension = string(contentType);
-        curl_easy_cleanup(tempCurl);
-        return fullFileSize;
+        extension = string(contentType);                                        //Set the extension.
+        curl_easy_cleanup(tempCurl);                                            //Closes all the connections to the url.
+        return fullFileSize;                                                    //Return file size upon success.
       }
     }
   }
-  return -1;
+  return -1;                                                                    //Return -1 upon failure.
 }
 
 auto webler::Downloader::FileRanges() -> void {                                 //Function to split file into multiple parts.
@@ -89,7 +86,7 @@ auto webler::Downloader::FileRanges() -> void {                                 
     tempString = to_string(division1);
     tempString.append("-");
     tempString.append(to_string(division2));
-    fileRanges.push_back(tempString);
+    fileRanges.push_back(tempString);                                           //Insert into the vector.
   }
 }
 
@@ -99,6 +96,39 @@ auto webler::Downloader::getSizeToEnd(ifstream& is) -> streampos {
     auto length = is.tellg() - currentPosition;
     is.seekg(currentPosition, is.beg);
     return length;
+}
+
+auto webler::Downloader::WriteTemporaryPartitions(int index) -> void {
+  CURL *curl = curl_easy_init();                                                //Initiate curl.
+  curl_easy_setopt(curl, CURLOPT_URL,finalUrl.c_str());                         //Pass the url to download the file from.
+  curl_easy_setopt(curl, CURLOPT_RANGE,fileRanges[index].c_str());              //Set the ranges to download.
+  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &tempOutputFiles[index]);           //Pass the stream pointers.
+  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,write_data);                     //Pass the callback function which will write the files.
+  CURLcode tempResult = curl_easy_perform(curl);                                //Close all connections after completing the url write back.
+  return;
+}
+
+auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> int {
+  std::ofstream output(outFile, ios::binary);                                   //Open the output stream.
+  fileSizeResult = FileSize(url);                                               //Determine the size of file.
+  FileRanges();                                                                 //Split the file into partitions of equal size.
+  if (fileSizeResult > 0) {
+      thread progressThread = thread(&Downloader::getDownloadProgress,this);    //Thread to calculate the progress.
+      for (int i = 0; i < MAX_NO_OF_THREADS; i++) {
+        fileThreadsToDownload[i] = thread(&Downloader::WriteTemporaryPartitions,this,i);
+      }                                                                         //Call the function multithreaded.
+      for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
+        fileThreadsToDownload[i].join();                                        //Wait for all the threads to complete executing.
+        tempOutputFiles[i].close();                                             //Close all the temporary files.
+      }
+      progressThread.join();                                                    //Wait for progress function to complete its callback
+      cout<<endl;
+      MergeDownloadedPartitions();                                              //Now merge all the downaloaded parts to form a single file.
+      return 0;
+  }
+  else{
+      return -1;
+  }
 }
 
 auto webler::Downloader::MergeDownloadedPartitions() -> void {
@@ -121,44 +151,6 @@ size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata){
 
 }
 
-auto webler::Downloader::WriteTemporaryPartitions(int index) -> void {
-  CURL *curl = curl_easy_init();                                                //Initiate curl.
-  curl_easy_setopt(curl, CURLOPT_URL,finalUrl.c_str());                         //Pass the url to download the file from.
-  curl_easy_setopt(curl, CURLOPT_RANGE,fileRanges[index].c_str());              //Set the ranges to download.
-  curl_easy_setopt(curl, CURLOPT_WRITEDATA, &tempOutputFiles[index]);           //Pass the stream pointers.
-  curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,write_data);                     //Pass the callback function which will write the files.
-  CURLcode tempResult = curl_easy_perform(curl);
-  return;
-}
-
-auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> int {
-  std::ofstream output(outFile, ios::binary);                                   //Open the output stream.
-  fileSizeResult = FileSize(url);                                               //Determine the size of file.
-  FileRanges();                                                                 //Split the file into partitions of equal size.
-  if (fileSizeResult > 0) {
-      thread progressThread = thread(&Downloader::getDownloadProgress,this);    //Thread to calculate the progress.
-      for (int i = 0; i < MAX_NO_OF_THREADS; i++) {
-        fileThreadsToDownload[i] = thread(&Downloader::WriteTemporaryPartitions,this,i);
-      }                                                                         //Call the function multithreaded.
-      for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
-        fileThreadsToDownload[i].join();                                        //Wait for all the threads to complete executing.
-        tempOutputFiles[i].close();                                             //Close all the temporary files.
-      }
-      progressThread.join();
-      cout<<endl;
-      MergeDownloadedPartitions();                                              //Now merge all the downaloaded parts to form a single file.
-      return 0;
-  }
-  else{
-      return -1;
-  }
-}
-
-auto webler::Downloader::SetProgressCallback(void (*callback)(double)) -> void {
-  progressCallback = callback;
-}
-
-
 auto webler::Downloader::getDownloadProgress() -> void {
     if(progressCallback) {
       ifstream *files = new ifstream[MAX_NO_OF_THREADS];
@@ -166,7 +158,7 @@ auto webler::Downloader::getDownloadProgress() -> void {
       double percentComplete = 0;
       while(indFileSize!=fileSizeResult){
         indFileSize = 0;
-        for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                          //Calculate the size of all the files.
+        for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                        //Calculate the size of all the files.
             ifstream file(tempFileNames[i].c_str(),ifstream::binary|ifstream::ate);
             indFileSize += file.tellg();
         }
@@ -188,6 +180,9 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
      extension = ".png";
    }
    else if(extension.find("jpg") != string::npos){
+     extension = ".gif";
+   }
+   else if(extension.find("jpg") != string::npos){
      extension = ".jpg";
    }
    else if(extension.find("jpeg") != string::npos){
@@ -202,7 +197,7 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
    else if(extension.find("zip") != string::npos){
      extension = ".zip";
    }
-   else if(extension.find("7z") != string::npos){
+   else if(extension.find("x-7z-compressed") != string::npos){
      extension = ".7z";
    }
    else if(extension.find("deb") != string::npos){
@@ -211,16 +206,13 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
    else if(extension.find("pkg") != string::npos){
      extension = ".pkg";
    }
-   else if(extension.find("rar") != string::npos){
+   else if(extension.find("x-rar-compressed") != string::npos){
      extension = ".rar";
    }
-   else if(extension.find("tar.gz") != string::npos){
+   else if(extension.find("gzip") != string::npos){
      extension = ".tar.gz";
    }
-   else if(extension.find("rar") != string::npos){
-     extension = ".rar";
-   }
-   else if(extension.find("bin") != string::npos){
+   else if(extension.find("octet-stream") != string::npos){
      extension = ".bin";
    }
    else if(extension.find("dmg") != string::npos){
@@ -235,11 +227,14 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
    else if(extension.find("sql") != string::npos){
      extension = ".sql";
    }
-   else if(extension.find("tar") != string::npos){
+   else if(extension.find("x-tar") != string::npos){
      extension = ".tar";
    }
    else if(extension.find("html") != string::npos){
      extension = ".html";
+   }
+   else if(extension.find("css") != string::npos){
+     extension = ".css";
    }
    else if(extension.find("xml") != string::npos){
      extension = ".xml";
@@ -253,31 +248,28 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
    else if(extension.find("php") != string::npos){
      extension = ".php";
    }
-   else if(extension.find("ppt") != string::npos){
-     extension = ".ppt";
-   }
-   else if(extension.find("pptx") != string::npos){
-     extension = ".pptx";
-   }
-   else if(extension.find("pps") != string::npos){
-     extension = ".pps";
-   }
-   else if(extension.find("xlsx") != string::npos){
-     extension = ".xlsx";
-   }
-   else if(extension.find("sys") != string::npos){
-     extension = ".sys";
-   }
    else if(extension.find("sys") != string::npos){
      extension = ".sys";
    }
    else if(extension.find("tmp") != string::npos){
      extension = ".tmp";
    }
-   else if(extension.find("doc") != string::npos){
+   else if(extension.find("msword") != string::npos){
      extension = ".doc";
    }
-   else if(extension.find("docx") != string::npos){
+   else if(extension.find("mspowerpoint") != string::npos){
+     extension = ".pps";
+   }
+   else if(extension.find("vnd.ms-powerpoint") != string::npos){
+     extension = ".ppt";
+   }
+   else if(extension.find("vnd.openxmlformats-officedocument.presentationml.presentation") != string::npos){
+     extension = ".pptx";
+   }
+   else if(extension.find("vnd.openxmlformats-officedocument.spreadsheetml.sheet") != string::npos){
+     extension = ".xlsx";
+   }
+   else if(extension.find("vnd.openxmlformats-officedocument.wordprocessingml.document") != string::npos){
      extension = ".docx";
    }
    string temp = oFilePath + extension;
@@ -288,16 +280,16 @@ auto webler::Downloader::download(string url, string outFile) -> bool {
 
   finalUrl = url;
   if(outFile==""){
-    outFile = gen_random_string(8);
+    outFile = GetRandomString(8);                                               //Give a random name if the file was not given one by the user.
   }
-  oFilePath = downloaddir + "/" + outFile;
+  oFilePath = downloaddir + "/" + outFile;                                      //Create and open the file path.
 
   for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {
     tempOutputFiles[i].open(tempFileNames[i]);                                  //Open the temp files.
   }
 
   int fileResult = DownloadFile(url.c_str(),oFilePath.c_str());
-  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                              //Remove the temporary files.
+  for (size_t i = 0; i < MAX_NO_OF_THREADS; i++) {                              //Remove the temporary files after the download.
        remove(tempFileNames[i].c_str());
   }
   if (fileResult ==  0){

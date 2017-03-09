@@ -11,7 +11,6 @@ int main() {
   webler::Downloader my_downloader;
   string url;
   cin>>url;
-
   string filename;
   cin>>filename;
   my_downloader.SetProgressCallback(progressCallback);
