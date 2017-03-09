@@ -98,6 +98,14 @@ auto webler::Downloader::getSizeToEnd(ifstream& is) -> streampos {
     return length;
 }
 
+size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata){
+    std::ofstream *out = static_cast<std::ofstream *>(userdata);
+    size_t nbytes = size * nmemb;
+    out->write(ptr, nbytes);                                                    //Specify the sie data to write to.
+    return nbytes;                                                              //Return the bytes.
+
+}
+
 auto webler::Downloader::WriteTemporaryPartitions(int index) -> void {
   CURL *curl = curl_easy_init();                                                //Initiate curl.
   curl_easy_setopt(curl, CURLOPT_URL,finalUrl.c_str());                         //Pass the url to download the file from.
@@ -143,13 +151,6 @@ auto webler::Downloader::MergeDownloadedPartitions() -> void {
     }
 }
 
-size_t write_data(char *ptr, size_t size, size_t nmemb, void *userdata){
-    std::ofstream *out = static_cast<std::ofstream *>(userdata);
-    size_t nbytes = size * nmemb;
-    out->write(ptr, nbytes);                                                    //Specify the sie data to write to.
-    return nbytes;                                                              //Return the bytes.
-
-}
 
 auto webler::Downloader::getDownloadProgress() -> void {
     if(progressCallback) {

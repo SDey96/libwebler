@@ -38,9 +38,9 @@ namespace webler {
       string tempFileNames[MAX_NO_OF_THREADS];
       ofstream tempOutputFiles[MAX_NO_OF_THREADS];
       thread fileThreadsToDownload[MAX_NO_OF_THREADS];
+      void (*progressCallback)(double);
 
       auto FileRanges() -> void;                                                     //Function to calculate the ranges of each file partition.
-      void (*progressCallback)(double);                                              //Function to analyse the callback.
       auto getDownloadProgress() -> void;                                            //Function to calculate the total download progress.
       auto DetermineFileExtension()  -> void;                                        //Function to determine the extension of the file.
       auto FileSize(const char *url) -> int;                                         //Function to determine the file size.
