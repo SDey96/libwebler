@@ -7,7 +7,6 @@
 #include <string>
 #include <regex>
 #include <thread>
-#include <mutex>
 #include <semaphore.h>
 #include <webler/Channel.hpp>
 using namespace std;

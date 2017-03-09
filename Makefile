@@ -60,6 +60,8 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo "\$$ g++ -o executable program.cpp --std=c++14 $(WEB_LIB) -lpthread -lcurl"
 	@echo ""
 	@echo "To use desktop app, type 'webler' in terminal"
+	@echo ""
+	@echo "Visit https://github.com/thecodesome/libwebler for detailed docs"
 	@echo "###########################"
 
 # building object files

@@ -76,10 +76,11 @@ int webler::WebCrawler::start() {
         // setting flag to in progress
         in_progress = true;
 
-        // array of channels to be used in DepthPoolManager
-        web_chan_ptr* channels = new web_chan_ptr[depth+1];
+        // creating channels to communicate between depths
+        vector<web_chan_ptr> channels;
+        channels.reserve(depth);
         for(int i=0; i<=depth; i++) {
-            channels[i] = new web_chan;
+            channels.push_back(new web_chan);
         }
 
         // channel to get data from last depth
@@ -131,7 +132,7 @@ int webler::WebCrawler::start() {
         for(int i=0; i<=depth; i++) {
             delete channels[i];
         }
-        delete channels;
+        channels.clear();
 
         // collecting all failed URL
         chan_failed_url.close();

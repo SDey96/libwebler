@@ -40,7 +40,7 @@ webler::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count
     [this] // captures
     (int rpd_id)-> void {
 
-        this->pool_mutex.lock();
+        unique_lock<mutex> poollock(this->pool_mutex);
         int pool_size = this->running_pool.size();
             
         for(int i=0; i<pool_size; i++) { // checking which thread called
@@ -96,7 +96,6 @@ webler::DepthPoolManager::DepthPoolManager(int _max_pool_size, int _thread_count
 
         }
 
-        this->pool_mutex.unlock();
     };
 
 }
@@ -110,7 +109,7 @@ webler::DepthPoolManager::~DepthPoolManager() {
 bool webler::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_get, web_chan_ptr _chan_put, bool is_end) {
     if (end_added) return false;
     
-    pool_mutex.lock();
+    unique_lock<mutex> poollock(pool_mutex);
     if (is_end) end_added = true;
 
     if(running_pool.size()<max_pool_size) {
@@ -139,13 +138,11 @@ bool webler::DepthPoolManager::add_depth(string regex_str, web_chan_ptr _chan_ge
 
         rpd.threads_active = thread_count;
         running_pool.push_back(rpd);
-        pool_mutex.unlock();
 
 
     } else {
         // add in waiting pool (running pool is full)
         wait_pool.push_back(webler::wait_pool_data(regex_str,_chan_get,_chan_put,is_end));
-        pool_mutex.unlock();
     }
 
     return true;

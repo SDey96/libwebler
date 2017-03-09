@@ -59,7 +59,7 @@ auto webler::Downloader::FileSize(const char *fileUrl) -> int {
   CURLcode tempCode;
   if(tempCurl) {
     curl_easy_setopt(tempCurl, CURLOPT_URL, fileUrl);                           //Send the url request
-    curl_easy_setopt(tempCurl, CURLOPT_NOBODY, 1000L);
+    curl_easy_setopt(tempCurl, CURLOPT_NOBODY, 1L);
     tempCode = curl_easy_perform(tempCurl);
     if(CURLE_OK == tempCode) {
       tempCode = curl_easy_getinfo(tempCurl, CURLINFO_CONTENT_LENGTH_DOWNLOAD,&fullFileSize);

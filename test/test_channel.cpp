@@ -24,7 +24,7 @@ void thread_function2(int i,webler::Channel<int> *chan) {
 
 int main () {
 
-    webler::Channel<int> *chan = new webler::Channel<int>;
+    webler::Channel<int> chan;
 
     int total_threads = 10;
 
@@ -39,11 +39,11 @@ int main () {
     // #####
     // CHANNEL TEST: Normal working of channel
     for(int j=0; j<total_threads; j++){
-        thread_array[j] = thread(thread_function,j,chan);
+        thread_array[j] = thread(thread_function,j,&chan);
     }
     
     for(int j=0; j<t; j++) {
-        arr[chan->retrieve(&closed)]++;
+        arr[chan.retrieve(&closed)]++;
     }
 
     for(int j=0; j<total_threads; j++){
@@ -54,26 +54,27 @@ int main () {
         cout << arr[j] << endl;
         arr[j] = 0;
     }
+    cout << endl;
     // #####
 
 
     // #####
     // CHANNEL TEST: Testing closing feature of channel
-    // for(int j=0; j<total_threads; j++){
-    //     thread_array[j] = thread(thread_function2,j,chan);
-    // }
+    for(int j=0; j<total_threads; j++){
+        thread_array[j] = thread(thread_function2,j,&chan);
+    }
 
-    // for(int j=chan->retrieve(&closed); !closed ; j=chan->retrieve(&closed)) {
-    //     arr[j]++;
-    // }
+    for(int j=chan.retrieve(&closed); !closed ; j=chan.retrieve(&closed)) {
+        arr[j]++;
+    }
 
-    // for(int j=0; j<total_threads; j++){
-    //     thread_array[j].join();
-    // }
+    for(int j=0; j<total_threads; j++){
+        thread_array[j].join();
+    }
     
-    // for(int j=0; j<total_threads; j++) {
-    //     cout << arr[j] << endl;
-    // }
+    for(int j=0; j<total_threads; j++) {
+        cout << arr[j] << endl;
+    }
     // #####
 
     cout << "Channel test is over" << endl;

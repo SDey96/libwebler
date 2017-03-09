@@ -79,17 +79,18 @@ webler::Channel<T>::Channel() {
 template <class T>
 int webler::Channel<T>::add(const T data) {
 
-    close_mutex.lock();
+    unique_lock<mutex> closelock(close_mutex);
+
     if(!chan_closed) {
-        buffer_mutex.lock();
+        unique_lock<mutex> bufferlock(buffer_mutex);
         buffer.push(data);
-        buffer_mutex.unlock();
-        close_mutex.unlock();
+        bufferlock.unlock();
+        closelock.unlock();
         
         sem_post(&buffer_sem);
         return webler::CHAN_SUCCESS;
     } else {
-        close_mutex.unlock();
+        closelock.unlock();
         return webler::CHAN_CLOSED;
     }
 
@@ -98,34 +99,34 @@ int webler::Channel<T>::add(const T data) {
 template <class T>
 T webler::Channel<T>::retrieve(bool *closed) {
 
-    close_mutex.lock();
+    unique_lock<mutex> closelock(close_mutex);
     if(!chan_closed) {
         
         ++waiting_length;
-        close_mutex.unlock();
+        closelock.unlock();
 
         sem_wait(&buffer_sem);
         --waiting_length;
 
     } else if(buffer.size()==0) {
-        close_mutex.unlock();
+        closelock.unlock();
         *closed = true;
         T temp;
         return temp;
     } else {
-        close_mutex.unlock();
+        closelock.unlock();
     }
 
-    buffer_mutex.lock();
+    unique_lock<mutex> bufferlock(buffer_mutex);
 
     if(buffer.size()>0) {
         T data = buffer.front();
         buffer.pop();
-        buffer_mutex.unlock();
+        bufferlock.unlock();
         *closed = false;
         return data;
     } else {
-        buffer_mutex.unlock();
+        bufferlock.unlock();
         *closed = true;
         T temp;
         return temp;
@@ -136,17 +137,15 @@ T webler::Channel<T>::retrieve(bool *closed) {
 template <class T>
 int webler::Channel<T>::close() {
 
-    close_mutex.lock();
+    unique_lock<mutex> closelock(close_mutex);
     if(!chan_closed){
         chan_closed = true;
         int current_waiting = waiting_length;
         while(--current_waiting >= 0) {
             sem_post(&buffer_sem);
         }
-        close_mutex.unlock();
         return webler::CHAN_SUCCESS;
     } else {
-        close_mutex.unlock();
         return webler::CHAN_CLOSED;
     }
 
