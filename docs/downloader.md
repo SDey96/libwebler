@@ -15,7 +15,7 @@ Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/d
 ### Using of `Downloader`
 > Disclaimer: All the links used below are just for demo and does not actually work. Check our tests for a working data.
 
-#### Create WebCrawler object
+#### Create Downloader object
 
 ```
 webler::Downloader my_downloader;
