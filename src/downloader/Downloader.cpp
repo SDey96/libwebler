@@ -155,9 +155,7 @@ auto webler::Downloader::DownloadFile (const char *url, const char *outFile) -> 
 }
 
 auto webler::Downloader::SetProgressCallback(void (*callback)(double)) -> void {
-
   progressCallback = callback;
-
 }
 
 
@@ -174,9 +172,9 @@ auto webler::Downloader::getDownloadProgress() -> void {
         }
         percentComplete = ((double)indFileSize/(double)fileSizeResult)*100;
         progressCallback(percentComplete);
-        usleep(400000);
+        usleep(10000);
      }
-    }
+  }
 }
 
 auto webler::Downloader::DetermineFileExtension() -> void {                     //Determine the extension of the downloaded file.
@@ -239,6 +237,9 @@ auto webler::Downloader::DetermineFileExtension() -> void {                     
    }
    else if(extension.find("tar") != string::npos){
      extension = ".tar";
+   }
+   else if(extension.find("html") != string::npos){
+     extension = ".html";
    }
    else if(extension.find("xml") != string::npos){
      extension = ".xml";
