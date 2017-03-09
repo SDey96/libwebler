@@ -8,15 +8,14 @@ void progressCallback(double percentage) {
 }
 
 int main() {
-  webler::Downloader DFP;
+  webler::Downloader my_downloader;
   string url;
   cin>>url;
-
   string filename;
   cin>>filename;
-  DFP.SetProgressCallback(progressCallback);
+  my_downloader.SetProgressCallback(progressCallback);
   cout << "Downloading ..." << endl;
-  if( DFP.download(url,filename) ) {
+  if( my_downloader.download(url,filename) ) {
   	cout << "Download successful" << endl;
   } else {
   	cout << "Failed download" << endl;
