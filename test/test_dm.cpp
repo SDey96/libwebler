@@ -11,15 +11,17 @@ int main() {
 
   webler::Downloader my_downloader;
   string url;
+  cout << "Enter download URL:" << endl;
   cin>>url;
   string filename;
+  cout << endl << "Enter file name:" << endl;
   cin>>filename;
   my_downloader.SetProgressCallback(progressCallback);
-  cout << "Downloading ..." << endl;
+  cout << endl << "Downloading ..." << endl;
   if( my_downloader.download(url,filename) ) {
-  	cout << "Download successful" << endl;
+  	cout << endl << "Download successful" << endl;
   } else {
-  	cout << "Failed download" << endl;
+  	cout << endl << "Download failed" << endl;
   }
   return 0;
 }

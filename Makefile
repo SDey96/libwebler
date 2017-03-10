@@ -54,16 +54,16 @@ install: place_headers build_msg $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	@echo ""
 	@echo "Creating archive => $(ARCHIVE_DIR)/$(LIB_NAME).a"
 	
-	# Creating archive directory
+	@# Creating archive directory
 	@mkdir -p $(ARCHIVE_DIR)
 	
-	# Creating archive files
+	@# Creating archive files
 	@ar -cvq $(ARCHIVE_DIR)/$(LIB_NAME).a $(C_BUILT_OBJECTS) $(D_BUILT_OBJECTS)
 	
 	@echo ""
 	@printf "Installing desktop app ..."
 
-	# Placing desktop app executable and provind permissions
+	@# Placing desktop app executable and provind permissions
 	@cp desktop_app/webler/webler /usr/local/bin/webler
 	@chmod +x /usr/local/bin/webler
 	@chown root: /usr/local/bin/webler
@@ -162,7 +162,7 @@ $(BUILD_DIR)/test/test_http.o: $(TEST_DIR)/test_http.cpp
 
 ## Testing download manager
 test_dm: test_directory $(BUILD_DIR)/test/test_dm.o
-	@echo "\n# Testing dm ..."
+	@echo "\n# Testing downloader ..."
 	$(CXX) -o $(BIN_DIR)/test_dm $(BUILD_DIR)/test/test_dm.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_dm
 	@echo ""
@@ -175,7 +175,7 @@ P_DEPTH = 3
 D_THREADS = 5
 
 test_web_crawler: test_directory $(BUILD_DIR)/test/test_web_crawler.o
-	@echo "\n# Testing depth handler ..."
+	@echo "\n# Testing web crawler ..."
 	$(CXX) -o $(BIN_DIR)/test_web_crawler $(BUILD_DIR)/test/test_web_crawler.o $(WEB_LIB) $(LIB)
 	./$(BIN_DIR)/test_web_crawler $(P_DEPTH) $(D_THREADS)
 	@echo ""

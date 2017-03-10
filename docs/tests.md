@@ -38,6 +38,12 @@ You will receive `1024` callbacks as result from WebCrawler
 
 * Every depth gets 2 more links for the next depth using first regex and a single capture of data at the last depth. Hence `2^10=1024` callbacks of final data will be received.
 
+### Testing Downloader
+#### Start the test
+Run ```make test_dm``` in terminal.
+
+You will be asked to enter the download URL and the name of the file (without extension).
+
 ### Testing Desktop App
 Check [this link](https://github.com/thecodesome/libwebler/blob/master/docs/desktop_app.md) to know more about desktop app
 
