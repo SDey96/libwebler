@@ -9,12 +9,40 @@ Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/d
 
 ### Public methods included
 * `class WebCrawler`
+
   * `int set_basedata(string _root_url, int _depth, vector<string> _regexes_str)`
+    * Used to set the base URL, depth and all the regex. This function has to be called successfully to run web crawler.
+    * Returns exit status
+      * `webler::WC_EINPROGRESS` if crawler is in progress.
+      * `webler::WC_SUCCESS` for success.
+      * `webler::WC_EINVALID` for invalid depth or invalid number of regex.
+
   * `int set_concurrency_options(int _max_depth, int _depth_threads)`
+    * Used to set the number of depths running a time and number of threads to be created in each depth.
+    * Returns exit status
+      * `webler::WC_EINPROGRESS` if crawler is in progress.
+      * `webler::WC_SUCCESS` for success.
+      * `webler::WC_EINVALID` for <=0 values.
+
   * `int set_callback(void (*_callback)(string, vector<string>))`
+    * Used to set the callback for the data received from the final depth.
+    * Returns exit status
+      * `webler::WC_EINPROGRESS` if crawler is in progress.
+      * `webler::WC_SUCCESS` for success.
+
   * `bool is_in_progress()`
+    * Returns `true` if the crawler is in progress. Else `false`
+
   * `int start()`
-* `vector<string> get_href(string html)`
+    * Used to start the crawler.
+    * Returns exit status
+      * `webler::WC_EINPROGRESS` if crawler is in progress.
+      * `webler::WC_EINVALID` if basedata is not updated.
+      * `webler::WC_SUCCESS` for success.
+      * `webler::WC_EUNKNOWN` for unknown error.
+
+
+* `vector<string> get_href(string html)` // non class member
 
 ### Using `WebCrawler`
 > Disclaimer: All the link and regex used below is just for demo and does not actually work. Check our tests for a working data.
