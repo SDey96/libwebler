@@ -7,7 +7,7 @@ Compile using ```--std=c++14 -lwebler -lpthread -lcurl```
 
 Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/docs/tests.md)
 
-### Methods included
+### Public methods included
 * `class WebCrawler`
   * `int set_basedata(string _root_url, int _depth, vector<string> _regexes_str)`
   * `int set_concurrency_options(int _max_depth, int _depth_threads)`
@@ -16,7 +16,7 @@ Find out our tests [here](https://github.com/thecodesome/libwebler/blob/master/d
   * `int start()`
 * `vector<string> get_href(string html)`
 
-### Using of `WebCrawler`
+### Using `WebCrawler`
 > Disclaimer: All the link and regex used below is just for demo and does not actually work. Check our tests for a working data.
 
 #### Create WebCrawler object
