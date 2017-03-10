@@ -44,6 +44,12 @@ namespace webler {
         **/
         int close();
 
+        /*
+        * @Params: None
+        * returns the buffer size of channel
+        **/
+        int buffer_size();
+
     private:
         
         // buffer to store incoming data
@@ -149,6 +155,11 @@ int webler::Channel<T>::close() {
         return webler::CHAN_CLOSED;
     }
 
+}
+
+template <class T>
+int webler::Channel<T>::buffer_size() {
+    return buffer.size();
 }
 
 #endif /*__WEBLER_CHANNEL_HPP__*/

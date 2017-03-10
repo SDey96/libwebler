@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <thread>
+#include <cassert>
 #include <webler/Channel.hpp>
 using namespace std;
 
@@ -52,6 +53,7 @@ int main () {
     
     for(int j=0; j<total_threads; j++) {
         cout << arr[j] << endl;
+        assert(arr[j]==N);
         arr[j] = 0;
     }
     cout << endl;
@@ -75,6 +77,9 @@ int main () {
     for(int j=0; j<total_threads; j++) {
         cout << arr[j] << endl;
     }
+    
+    assert(chan.buffer_size()==0);
+    
     // #####
 
     cout << "Channel test is over" << endl;
