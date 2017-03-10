@@ -21,7 +21,12 @@ void callback(string url, vector<string> data) {
 
 }
 
-int main () {
+int main (int argc, char const *argv[]) {
+
+    if(argc < 3) {
+        cout << "Invalid number of arguments" << endl;
+        return 0;
+    }
 
 /*
 URL:
@@ -50,7 +55,7 @@ Regex
         return 0;
     }
 
-    if(test_crawler.set_concurrency_options(3,5) != webler::WC_SUCCESS) {
+    if(test_crawler.set_concurrency_options(atoi(argv[1]),atoi(argv[2])) != webler::WC_SUCCESS) {
         cout << "Error in setting concurrency options" << endl;
         return 0;
     }
