@@ -3,6 +3,9 @@ By using desktop app you will get all the data from the final depth in a file.
 
 Type `webler` in terminal to open the desktop app
 
+* [Web Crawler](#web-crawler)
+* [Downloader](#downloader)
+
 ## Web Crawler
 
 ![webler desktop app](images/img1.png)

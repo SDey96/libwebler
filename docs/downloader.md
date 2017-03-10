@@ -54,4 +54,4 @@ my_downloader.download(url) also works but gives a random name.
 */
 ```
 
-Check how to use Downloader in desktop app [here](https://github.com/thecodesome/libwebler/blob/master/docs/desktop_app.md)
+Check how to use Downloader in desktop app [here](https://github.com/thecodesome/libwebler/blob/master/docs/desktop_app.md#downloader)
